@@ -24,12 +24,22 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
+            'username' => fake()->unique()->userName(),
             'email' => fake()->unique()->safeEmail(),
+            'surname' => fake()->lastName(),
+            'forenames' => fake()->firstName(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
+            'is_student' => true,
             'remember_token' => Str::random(10),
         ];
+    }
+
+    public function staff(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_student' => false,
+        ]);
     }
 
     /**

@@ -1,0 +1,38 @@
+<?php
+
+namespace App\Models;
+
+use App\Models\User;
+use App\Models\Course;
+use App\Models\Complaint;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class Assessment extends Model
+{
+    /** @use HasFactory<\Database\Factories\AssessmentFactory> */
+    use HasFactory;
+
+    protected $fillable = ['type', 'course_id', 'staff_id','deadline', 'feedback_type', 'feedback_deadline', 'feedback_completed_date', 'comment', 'office_notified'];
+
+
+    public function course(): BelongsTo
+    {
+        return $this->belongsTo(Course::class);
+    }
+
+    public function staff(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'staff_id');
+    }
+
+    public function complaints(): HasMany
+    {
+        return $this->hasMany(Complaint::class);
+    }
+
+
+}
+    
