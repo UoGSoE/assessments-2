@@ -13,7 +13,7 @@
         </flux:field>
         <flux:field class="mb-4">
             <flux:label>Staff</flux:label>
-            <flux:select wire:model="staff_id">
+            <flux:select wire:model.fill="staff_id">
                 @foreach ($staff as $staffMember)
                     <flux:select.option value="{{ $staffMember->id }}">{{ $staffMember->name }}</flux:select.option>
                 @endforeach

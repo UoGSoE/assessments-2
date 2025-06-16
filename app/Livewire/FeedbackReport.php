@@ -41,7 +41,7 @@ class FeedbackReport extends Component
     {
         Complaint::query()->delete();
         Assessment::query()->delete();
-        Course::query()->delete();
-        User::query()->delete();
+        
+        return redirect()->route('assessment.index');
     }
 }

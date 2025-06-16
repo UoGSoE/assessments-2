@@ -60,6 +60,8 @@
 
     @fluxScripts
     @stack('scripts')
-    <flux:toast />
+    @persist('toast')
+        <flux:toast />
+    @endpersist
 </body>
 </html>

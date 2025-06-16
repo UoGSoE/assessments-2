@@ -22,7 +22,7 @@ class AssessmentFactory extends Factory
             'deadline' => fake()->dateTimeBetween('now', '+1 month'),
             'type' => fake()->randomElement(['Exam 1', 'Assignment 1', 'Quiz 1']),
             'course_id' => Course::factory(),
-            'staff_id' => fn() => User::where('is_student', false)->inRandomOrder()->first()->id,
+            'staff_id' => User::factory()->staff()->create()->id,
             'feedback_type' => fake()->randomElement(['Moodle', 'Other']),
             'feedback_deadline' => fake()->dateTimeBetween('now', '+2 month')
         ];

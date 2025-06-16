@@ -64,8 +64,7 @@ class EditAssessment extends Component
             'comment' => $this->comment
         ]);
 
-        
-        //return redirect()->route('assessment.show', $this->assessment->id);
-        Flux::toast('Assessment updated successfully.');
+        Flux::toast('Assessment updated successfully.', variant: 'success');
+        $this->redirect(route('assessment.show', $this->assessment->id), navigate: true);
     }
 }

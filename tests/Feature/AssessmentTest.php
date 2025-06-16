@@ -2,6 +2,7 @@
 
 use App\Models\Assessment;
 use App\Livewire\Assessment as AssessmentLivewire;
+use App\Livewire\FeedbackReport;
 use App\Models\Complaint;
 use App\Models\Course;
 use App\Models\User;
@@ -51,7 +52,11 @@ it('allows feedback completed date to be saved', function () {
         ->assertDontSee('Select a date')
         ->assertDontSee('Save Completed Date');
 
-    
+    expect($assessment->refresh()->feedback_completed_date)->toBe('2025-12-12');
+
+    livewire(FeedbackReport::class)
+        ->assertSee('2025-12-12');
+
 });
 
 it('displays all complaints', function () {
@@ -63,5 +68,19 @@ it('displays all complaints', function () {
 
     livewire(AssessmentLivewire::class, ['id' => $assessment->id])
         ->assertSee($complaint->student->name);
+    
+});
+
+it('deletes assessment', function () {
+    $assessment = Assessment::factory()->create();
+
+    livewire(FeedbackReport::class)
+        ->assertSee($assessment->type);
+
+    livewire(AssessmentLivewire::class, ['id' => $assessment->id])
+        ->call('deleteAssessment');
+    
+    livewire(FeedbackReport::class)
+        ->assertDontSee($assessment->type);
     
 });

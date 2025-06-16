@@ -20,8 +20,8 @@ class ComplaintFactory extends Factory
     {
         return [
             'assessment_id' => Assessment::factory(),
-            'student_id' => fn() => User::where('is_student', true)->inRandomOrder()->first()->id,
-            'staff_id' => fn() => User::where('is_student', false)->inRandomOrder()->first()->id,
+            'student_id' => User::factory()->create()->id,
+            'staff_id' => User::factory()->staff()->create()->id,
         ];
     }
 }
