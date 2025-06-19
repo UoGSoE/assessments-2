@@ -1,5 +1,5 @@
 <div>
-    <div class="flex flex-row justify-between">
+    <div class="flex flex-row justify-between items-baseline">
         <flux:heading size="xl" class="mb-4">Feedback Report</flux:heading>
         <div class="flex flex-row gap-2">
             <flux:button variant="danger" icon="trash" wire:click="deleteAllData"></flux:button>
@@ -22,10 +22,11 @@
             </flux:dropdown>
         </div>
     </div>
-    <div class="flex flex-row">
+    <div class="flex flex-row items-center w-full">
         <flux:text class="mr-2">Search</flux:text>
-        <flux:input wire:model.live.debounce="searchText" size="sm" class="w-1/2" />
+        <flux:input wire:model.live.debounce="searchText" size="sm" class="w-full flex-1" />
     </div>
+    
     @if ($assessments->count() > 0)
     <flux:table>
     <flux:table.columns>

@@ -20,8 +20,8 @@ class ComplaintFactory extends Factory
     {
         return [
             'assessment_id' => Assessment::factory(),
-            'student_id' => User::factory()->create()->id,
-            'staff_id' => User::factory()->staff()->create()->id,
+            'student_id' => User::factory(),
+            'staff_id' => User::factory()->staff(),
         ];
     }
 }

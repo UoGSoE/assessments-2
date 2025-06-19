@@ -51,3 +51,12 @@ it('searches for a staff member by name', function () {
         ->assertDontSee($staff2->name)
         ->assertDontSee($staff3->name);
 });
+
+it('displays the number of missed deadlines', function () {
+    $staff = User::factory()->staff()->create();
+    $assessment1 = Assessment::factory()->create(['staff_id' => $staff->id, 'feedback_deadline' => now()->subDays(1)]);
+    $assessment2 = Assessment::factory()->create(['staff_id' => $staff->id, 'feedback_deadline' => now()->subDays(1)]);
+
+    livewire(StaffList::class)
+        ->assertSee(2);
+});

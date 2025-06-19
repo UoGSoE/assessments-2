@@ -8,6 +8,7 @@ use App\Models\Course;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Log;
 
 class TestDataSeeder extends Seeder
 {
@@ -50,20 +51,5 @@ class TestDataSeeder extends Seeder
             ]);
         }
         
-        
-
-        
-        
-        // Assessment::factory()->count(5)->create([
-        //     'course_id' => fn() => $courses->random()->id,
-        //     'staff_id' => fn() => $staff->random()->id
-        // ]);
-
-        //$assessments = Assessment::all();
-        //Complaint::factory()->count(5)->create([
-        //    'assessment_id' => fn() => $assessments->random()->id,
-        //    'student_id' => fn() => $students->random()->id,
-        //    'staff_id' => fn() => $staff->random()->id
-        //]);
     }
 }

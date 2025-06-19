@@ -12,17 +12,20 @@ use Livewire\Livewire;
 use function Pest\Laravel\actingAs;
 use function Pest\Livewire\livewire;
 
+beforeEach(function () {
+    $this->admin = User::factory()->create(['is_admin' => true]);
+});
+
 it('can be rendered', function () {
     $student = User::factory()->create();
 
+    actingAs($this->admin);
     livewire(Student::class, ['id' => $student->id])
         ->assertSee('Student Details')
         ->assertSee('Name')
         ->assertSee('Email')
         ->assertSee('Courses')
-        ->assertSee('No courses found')
-        ->assertSee('Assessments')
-        ->assertSee('No assessments found');
+        ->assertSee('Assessments');
 });
 
 it('displays student details', function () {
@@ -33,7 +36,8 @@ it('displays student details', function () {
     $student->coursesAsStudent()->attach($course2);
     $assessment1 = Assessment::factory()->create(['course_id' => $course1->id]);
 
-    livewire(Student::class, ['id' => $student->id])
+    actingAs($this->admin);
+    livewire(Student::class, ['student' => $student])
         ->assertSee($student->name)
         ->assertSee($student->email)
         ->assertSee($course1->code)

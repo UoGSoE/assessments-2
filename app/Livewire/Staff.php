@@ -12,11 +12,13 @@ class Staff extends Component
     public $courses;
     public $assessments;
 
-    public function mount($id)
+    public function mount(User $staff)
     {
-        $this->staff = User::find($id);
+        $this->staff = $staff;
         $this->courses = $this->staff->coursesAsStaff;
-        $this->assessments = Assessment::where('staff_id', $this->staff->id)->get();
+        $this->assessments = Assessment::with(['course', 'complaints'])
+            ->where('staff_id', $this->staff->id)
+            ->get();
     }
 
     public function render()

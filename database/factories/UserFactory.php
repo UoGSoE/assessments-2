@@ -24,13 +24,17 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'username' => fake()->unique()->userName(),
+            'username' => fake()->unique()->regexify('[0-9]{7}[a-zA-Z]'),
+            //'username' => fake()->userName(),
             'email' => fake()->unique()->safeEmail(),
             'surname' => fake()->lastName(),
             'forenames' => fake()->firstName(),
             'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
+            // TODO: Change back to hashed value after testing
+            //'password' => static::$password ??= Hash::make('password'),
+            'password' => 'secret',
             'is_student' => true,
+            'is_staff' => false,
             'remember_token' => Str::random(10),
         ];
     }
@@ -38,7 +42,9 @@ class UserFactory extends Factory
     public function staff(): static
     {
         return $this->state(fn (array $attributes) => [
+            'username' => fake()->unique()->regexify('[a-zA-Z]+[0-9]+[a-zA-Z]+'),
             'is_student' => false,
+            'is_staff' => true,
         ]);
     }
 

@@ -11,8 +11,9 @@
         </div>
     </div>
     <flux:separator class="mt-4 mb-4" />
-    <div class="flex flex-row justify-between">
-        <div>
+    <div class="flex flex-row">
+        @can('view-student')
+        <div class="w-1/2">
             <flux:heading>Students</flux:heading>
             <ul class="list-disc">
             @foreach ($students as $student)
@@ -20,7 +21,8 @@
             @endforeach
             </ul>
         </div>
-        <div>
+        @endcan
+        <div class="w-1/2">
             <flux:heading>Assessments</flux:heading>
             <ul class="list-disc">
             @foreach ($assessments as $assessment)

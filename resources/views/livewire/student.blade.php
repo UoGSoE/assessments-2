@@ -22,7 +22,7 @@
     <flux:separator class="mt-4 mb-4" />
     <flux:heading size="xl" class="mb-4">Assessments for {{ $student->getNameAttribute() }}</flux:heading>
     @foreach ($assessments as $assessment)
-        <div>
+        <div class="mt-4">
             <flux:heading><a class="text-blue-500" href="{{ route('assessment.show', $assessment->id) }}">{{ $assessment->type }}</a></flux:heading>
             <flux:text>{{ $assessment->deadline }}</flux:text>
         </div>

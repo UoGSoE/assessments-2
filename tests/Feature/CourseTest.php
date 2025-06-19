@@ -8,6 +8,10 @@ use App\Models\User;
 use function Pest\Laravel\actingAs;
 use function Pest\Livewire\livewire;
 
+beforeEach(function () {
+    $this->admin = User::factory()->create(['is_admin' => true]);
+});
+
 it('can be rendered', function () {
     $course = Course::factory()->create();
     $students = User::factory()->count(3)->create();
@@ -17,7 +21,8 @@ it('can be rendered', function () {
     }
     $assessments = Assessment::factory()->count(3)->create(['course_id' => $course->id, 'staff_id' => $staff->id]);
 
-    livewire(CourseLivewire::class, ['id' => $course->id])
+    actingAs($this->admin);
+    livewire(CourseLivewire::class, ['course' => $course])
         ->assertSee('Course Details')
         ->assertSee('Title')
         ->assertSee('Code')
@@ -34,9 +39,16 @@ it('displays individual course details', function () {
     }
     $assessments = Assessment::factory()->count(3)->create(['course_id' => $course->id, 'staff_id' => $staff->id]);
 
-    livewire(CourseLivewire::class, ['id' => $course->id])
+    actingAs($this->admin);
+    livewire(CourseLivewire::class, ['course' => $course])
         ->assertSee($course->title)
         ->assertSee($course->code)
         ->assertSee($students->count())
         ->assertSee($assessments->count());
+
+    $student = User::factory()->create();
+
+    actingAs($student);
+    livewire(CourseLivewire::class, ['course' => $course])
+        ->assertDontSee('Students');
 });

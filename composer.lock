@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9574994354c480c0da91af3dce97808b",
+    "content-hash": "266135cac7ba41d2274ba99d78fa9d8f",
     "packages": [
         {
             "name": "brick/math",
@@ -2703,6 +2703,57 @@
                 }
             ],
             "time": "2025-05-08T08:14:37+00:00"
+        },
+        {
+            "name": "ohffs/simple-laravel-ldap",
+            "version": "2.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ohnotnow/simple-ldap.git",
+                "reference": "9bbe11991f8ad491a25e3b3cef873bd273f6df4c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ohnotnow/simple-ldap/zipball/9bbe11991f8ad491a25e3b3cef873bd273f6df4c",
+                "reference": "9bbe11991f8ad491a25e3b3cef873bd273f6df4c",
+                "shasum": ""
+            },
+            "require-dev": {
+                "orchestra/testbench": "~7.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "Ldap": "Ohffs\\Ldap\\LdapFacade"
+                    },
+                    "providers": [
+                        "Ohffs\\Ldap\\LdapServiceProvider",
+                        "Ohffs\\Ldap\\LdapConnectionProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Ohffs\\Ldap\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "billy",
+                    "email": "william.allan@glasgow.ac.uk"
+                }
+            ],
+            "description": "Basic LDAP auser auth/lookup",
+            "support": {
+                "issues": "https://github.com/ohnotnow/simple-ldap/issues",
+                "source": "https://github.com/ohnotnow/simple-ldap/tree/2.0.1"
+            },
+            "time": "2022-06-10T14:45:20+00:00"
         },
         {
             "name": "phpoption/phpoption",
@@ -7125,6 +7176,80 @@
                 }
             ],
             "time": "2025-04-16T22:59:48+00:00"
+        },
+        {
+            "name": "pestphp/pest-plugin-laravel",
+            "version": "v3.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pestphp/pest-plugin-laravel.git",
+                "reference": "6801be82fd92b96e82dd72e563e5674b1ce365fc"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/pestphp/pest-plugin-laravel/zipball/6801be82fd92b96e82dd72e563e5674b1ce365fc",
+                "reference": "6801be82fd92b96e82dd72e563e5674b1ce365fc",
+                "shasum": ""
+            },
+            "require": {
+                "laravel/framework": "^11.39.1|^12.9.2",
+                "pestphp/pest": "^3.8.2",
+                "php": "^8.2.0"
+            },
+            "require-dev": {
+                "laravel/dusk": "^8.2.13|dev-develop",
+                "orchestra/testbench": "^9.9.0|^10.2.1",
+                "pestphp/pest-dev-tools": "^3.4.0"
+            },
+            "type": "library",
+            "extra": {
+                "pest": {
+                    "plugins": [
+                        "Pest\\Laravel\\Plugin"
+                    ]
+                },
+                "laravel": {
+                    "providers": [
+                        "Pest\\Laravel\\PestServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/Autoload.php"
+                ],
+                "psr-4": {
+                    "Pest\\Laravel\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "The Pest Laravel Plugin",
+            "keywords": [
+                "framework",
+                "laravel",
+                "pest",
+                "php",
+                "test",
+                "testing",
+                "unit"
+            ],
+            "support": {
+                "source": "https://github.com/pestphp/pest-plugin-laravel/tree/v3.2.0"
+            },
+            "funding": [
+                {
+                    "url": "https://www.paypal.com/paypalme/enunomaduro",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/nunomaduro",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-04-21T07:40:53+00:00"
         },
         {
             "name": "pestphp/pest-plugin-livewire",

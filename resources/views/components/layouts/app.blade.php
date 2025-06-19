@@ -19,39 +19,46 @@
 
         <flux:navlist variant="outline">
             <flux:navlist.item icon="home" href="{{ route('home') }}" :current="request()->routeIs('home')">Home</flux:navlist.item>
+            @if(auth()->check() && auth()->user()->is_admin)
             <flux:navlist.item icon="user-group" href="{{ route('assessment.index') }}" :current="request()->routeIs('assessment.index')">Admin</flux:navlist.item>
+            @endif
         </flux:navlist>
 
         <flux:spacer />
-
+        @auth
         <flux:dropdown position="top" align="start" class="max-lg:hidden">
-            <flux:profile avatar="https://fluxui.dev/img/demo/user.png" name="Olivia Martin" />
+            <flux:profile  name="{{ auth()->check() ? auth()->user()->name : 'Guest' }}" />
 
             <flux:menu>
-                <flux:menu.item icon="arrow-right-start-on-rectangle">Logout</flux:menu.item>
+                <flux:menu.item>
+                    <form method="POST" action="{{ route('logout') }}" class="inline">
+                        @csrf
+                        <button icon="arrow-right-start-on-rectangle" type="submit" class="text-left">Logout</button>
+                    </form>
+                </flux:menu.item>
             </flux:menu>
         </flux:dropdown>
+        @endauth
     </flux:sidebar>
 
     <flux:header class="lg:hidden">
         <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
 
         <flux:spacer />
-
+        @auth
         <flux:dropdown position="top" align="start">
-            <flux:profile avatar="https://fluxui.dev/img/demo/user.png" />
+            <flux:profile name="{{ auth()->check() ? auth()->user()->name : 'Guest' }}" />
 
             <flux:menu>
-                <flux:menu.radio.group>
-                    <flux:menu.radio checked>Olivia Martin</flux:menu.radio>
-                    <flux:menu.radio>Truly Delta</flux:menu.radio>
-                </flux:menu.radio.group>
-
-                <flux:menu.separator />
-
-                <flux:menu.item icon="arrow-right-start-on-rectangle">Logout</flux:menu.item>
+                <flux:menu.item>
+                    <form method="POST" action="{{ route('logout') }}" class="inline">
+                        @csrf
+                        <button type="submit" class="w-full" icon="arrow-right-start-on-rectangle">Logout</button>
+                    </form>
+                </flux:menu.item>
             </flux:menu>
         </flux:dropdown>
+        @endauth
     </flux:header>
 
     <flux:main>

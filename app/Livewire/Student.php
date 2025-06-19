@@ -12,12 +12,13 @@ class Student extends Component
     public $courses;
     public $assessments;
 
-    public function mount($id)
+    public function mount(User $student)
     {
-        $this->student = User::find($id);
-
+        $this->student = $student;
         $this->courses = $this->student->coursesAsStudent;
-        $this->assessments = Assessment::whereIn('course_id', $this->courses->pluck('id'))->get();
+        $this->assessments = Assessment::with(['course', 'staff'])
+            ->whereIn('course_id', $this->courses->pluck('id'))
+            ->get();
     }
 
     public function render()

@@ -12,11 +12,13 @@ class Course extends Component
     public $students;
     public $assessments;
     
-    public function mount($id)
+    public function mount(ModelsCourse $course)
     {
-        $this->course = ModelsCourse::find($id);
+        $this->course = $course;
         $this->students = $this->course->students;
-        $this->assessments = Assessment::where('course_id', $this->course->id)->get();
+        $this->assessments = Assessment::with(['staff', 'complaints'])
+            ->where('course_id', $this->course->id)
+            ->get();
     }
 
     public function render()
