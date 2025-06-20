@@ -22,16 +22,6 @@ Route::post('/logout', function () {
     return redirect()->route('login');
 })->name('logout');
 
-Route::middleware(['auth'])->group(function () {
-    Route::get('/', Home::class)->name('home');
-
-    Route::get('/assessment/{assessment}', Assessment::class)->name('assessment.show');
-
-    Route::get('/course/{course}', Course::class)->name('course.show');
-
-    Route::get('/student/{student}', Student::class)->name('student.show')->middleware('can:view-student,student');
-});
-
 Route::middleware(['auth', 'can:is-admin'])->group(function () {
     Route::get('/report/feedback', FeedbackReport::class)->name('assessment.index');
 
@@ -45,3 +35,15 @@ Route::middleware(['auth', 'can:is-admin'])->group(function () {
 
     Route::get('/report/staff', StaffList::class)->name('staff.index');
 });
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/', Home::class)->name('home');
+
+    Route::get('/assessment/{assessment}', Assessment::class)->name('assessment.show')->middleware('can:view-assessment,assessment');
+
+    Route::get('/course/{course}', Course::class)->name('course.show')->middleware('can:view-course,course');
+
+    Route::get('/student/{student}', Student::class)->name('student.show')->middleware('can:view-student,student');
+});
+
+

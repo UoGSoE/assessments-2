@@ -7,7 +7,7 @@
                 <flux:button icon:trailing="chevron-down">More</flux:button>
                 <flux:menu>
                     <flux:menu.item icon="plus"><a href="{{ route('assessment.create') }}">Add new assessment</a></flux:menu.item>
-                    <flux:menu.item icon="arrow-down-tray">Export as Excel</flux:menu.item>
+                    <flux:menu.item icon="arrow-down-tray" wire:click="exportAsExcel">Export as Excel</flux:menu.item>
                     <flux:menu.item icon="user"><a href="{{ route('staff.index') }}">Staff Report</a></flux:menu.item>
                     <flux:menu.separator />
                     <flux:menu.item icon="arrow-up-tray">1. Import courses</flux:menu.item>

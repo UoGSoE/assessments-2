@@ -45,3 +45,13 @@ it('displays staff details', function () {
         ->assertSee($assessment->type);
 });
 
+it('only allows admins to view page', function () {
+    $random_student = User::factory()->create();
+    $random_staff = User::factory()->staff()->create();
+
+    actingAs($random_student)->get(route('staff.show', $random_staff->id))
+        ->assertForbidden();
+
+    actingAs($random_staff)->get(route('staff.show', $random_staff->id))
+        ->assertForbidden();
+});

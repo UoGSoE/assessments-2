@@ -44,3 +44,14 @@ it('displays student details', function () {
         ->assertSee($course2->code)
         ->assertSee($assessment1->type);
 }); // Fixed missing closing brace
+
+it('only allows admins and staff to view page', function () {
+    $random_student = User::factory()->create();
+    $random_staff = User::factory()->staff()->create();
+
+    actingAs($random_student)->get(route('student.show', $random_student->id))
+        ->assertForbidden();
+
+    actingAs($random_staff)->get(route('student.show', $random_student->id))
+        ->assertSee('Student Details');
+});

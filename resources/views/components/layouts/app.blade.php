@@ -26,17 +26,16 @@
 
         <flux:spacer />
         @auth
-        <flux:dropdown position="top" align="start" class="max-lg:hidden">
-            <flux:profile  name="{{ auth()->check() ? auth()->user()->name : 'Guest' }}" />
-
-            <flux:menu>
-                <flux:menu.item>
+        <flux:dropdown position="bottom" align="end" class="max-lg:hidden">
+            <flux:profile name="{{ auth()->check() ? auth()->user()->name : 'Guest' }}" />
+            <flux:navmenu>
+                <flux:navmenu.item href="#" icon="arrow-right-start-on-rectangle">
                     <form method="POST" action="{{ route('logout') }}" class="inline">
                         @csrf
-                        <button icon="arrow-right-start-on-rectangle" type="submit" class="text-left">Logout</button>
+                        <button type="submit" class="w-full" icon="arrow-right-start-on-rectangle">Logout</button>
                     </form>
-                </flux:menu.item>
-            </flux:menu>
+                </flux:navmenu.item>
+            </flux:navmenu>
         </flux:dropdown>
         @endauth
     </flux:sidebar>
@@ -46,17 +45,16 @@
 
         <flux:spacer />
         @auth
-        <flux:dropdown position="top" align="start">
+        <flux:dropdown position="bottom" align="end" class="max-lg:hidden">
             <flux:profile name="{{ auth()->check() ? auth()->user()->name : 'Guest' }}" />
-
-            <flux:menu>
-                <flux:menu.item>
+            <flux:navmenu>
+                <flux:navmenu.item href="#" icon="arrow-right-start-on-rectangle">
                     <form method="POST" action="{{ route('logout') }}" class="inline">
                         @csrf
                         <button type="submit" class="w-full" icon="arrow-right-start-on-rectangle">Logout</button>
                     </form>
-                </flux:menu.item>
-            </flux:menu>
+                </flux:navmenu.item>
+            </flux:navmenu>
         </flux:dropdown>
         @endauth
     </flux:header>

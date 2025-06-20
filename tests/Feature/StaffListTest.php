@@ -11,6 +11,10 @@ use Livewire\Livewire;
 use function Pest\Laravel\actingAs;
 use function Pest\Livewire\livewire;
 
+beforeEach(function () {
+    $this->admin = User::factory()->create(['is_admin' => true]);
+});
+
 it('can be rendered', function () {
     livewire(StaffList::class)
         ->assertSee('Staff Report')
@@ -59,4 +63,18 @@ it('displays the number of missed deadlines', function () {
 
     livewire(StaffList::class)
         ->assertSee(2);
+});
+
+it('only allows admins to view page', function () {
+    $random_student = User::factory()->create();
+    $random_staff = User::factory()->staff()->create();
+
+    actingAs($random_student)->get(route('staff.index'))
+        ->assertForbidden();
+
+    actingAs($random_staff)->get(route('staff.index'))
+        ->assertForbidden();
+
+    actingAs($this->admin)->get(route('staff.index'))
+        ->assertOk();
 });

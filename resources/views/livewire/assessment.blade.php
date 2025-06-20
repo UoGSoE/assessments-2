@@ -3,12 +3,12 @@
         <div class="flex flex-row gap-2 items-baseline">
             <flux:heading size="xl" class="mb-4">Assessment Details</flux:heading>
             @can('is-admin')
-                <flux:button icon="pencil-square" href="{{ route('assessment.edit', $assessment->id) }}"></flux:button>
+                <flux:button icon="pencil-square" id="edit-assessment" href="{{ route('assessment.edit', $assessment->id) }}"></flux:button>
             @endcan
         </div>
         <div>
             @can('is-admin')
-                <flux:button variant="danger" icon="trash" wire:click="deleteAssessment"></flux:button>
+                <flux:button variant="danger" icon="trash" id="delete-assessment" wire:click="deleteAssessment"></flux:button>
             @endcan
         </div>
     </div>
@@ -59,6 +59,7 @@
         </div>
     </div>
     <flux:separator class="mt-4 mb-4" />
+    @can('view-complaints', $assessment)
     <flux:heading size="xl">Complaints Left</flux:heading>
     @foreach ($complaints as $complaint)
         <div class="mt-4">
@@ -66,6 +67,7 @@
             <flux:text>{{ $complaint->student->name }}</flux:text>
         </div>
     @endforeach
+    @endcan
     @can('add-complaint', $assessment)
         @if ($assessment->feedback_deadline < now() && !$assessment->feedback_completed_date)
             <flux:button icon="plus" wire:click="addComplaint" class="mt-4">Add Complaint</flux:button>

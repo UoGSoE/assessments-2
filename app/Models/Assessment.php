@@ -33,6 +33,17 @@ class Assessment extends Model
         return $this->hasMany(Complaint::class);
     }
 
+    public function isOld(): bool
+    {
+        return $this->deadline < now()->subDays(90);
+    }
+
+    public function studentAlreadyComplained(User $student): bool
+    {
+        $existingComplaint = Complaint::where('student_id', $student->id)->where('assessment_id', $this->id)->first();
+        return $existingComplaint ? true : false;
+    }
+
 
 }
     

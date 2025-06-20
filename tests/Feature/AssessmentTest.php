@@ -12,16 +12,17 @@ use function Pest\Livewire\livewire;
 
 beforeEach(function () {
     $this->admin = User::factory()->create(['is_admin' => true]);
+    $this->course = Course::factory()->create();
+    $this->staff = User::factory()->staff()->create();
+    $this->course->staff()->attach($this->staff->id);
+    $this->assessment = Assessment::factory()->create(['course_id' => $this->course->id, 'staff_id' => $this->staff->id, 'feedback_deadline' => now()->subDays(1), 'deadline' => now()->subDays(1)]);
 });
 
 it('can be rendered', function () {
-    $course = Course::factory()->create();
-    $staff = User::factory()->staff()->create();
-    $assessment = Assessment::factory()->create(['course_id' => $course->id, 'staff_id' => $staff->id, 'feedback_deadline' => now()->subDays(1)]);
 
     actingAs($this->admin);
 
-    livewire(AssessmentLivewire::class, ['assessment' => $assessment])
+    livewire(AssessmentLivewire::class, ['assessment' => $this->assessment])
         ->assertSee('Assessment Details')
         ->assertSee('Course')
         ->assertSee('Set By')
@@ -33,28 +34,22 @@ it('can be rendered', function () {
 
 
 it('displays individual assessment details', function () {
-    $course = Course::factory()->create();
-    $staff = User::factory()->staff()->create();
-    $assessment = Assessment::factory()->create(['course_id' => $course->id, 'staff_id' => $staff->id]);
 
     actingAs($this->admin);
 
-    livewire(AssessmentLivewire::class, ['assessment' => $assessment])
-        ->assertSee($assessment->course->title)
-        ->assertSee($assessment->type)
-        ->assertSee($assessment->course->code)
-        ->assertSee($assessment->staff->name)
-        ->assertSee($assessment->type)
-        ->assertSee($assessment->deadline);
+    livewire(AssessmentLivewire::class, ['assessment' => $this->assessment])
+        ->assertSee($this->assessment->course->title)
+        ->assertSee($this->assessment->type)
+        ->assertSee($this->assessment->course->code)
+        ->assertSee($this->assessment->staff->name)
+        ->assertSee($this->assessment->type)
+        ->assertSee($this->assessment->deadline);
 });
 
 it('allows feedback completed date to be saved', function () {
-    $course = Course::factory()->create();
-    $staff = User::factory()->staff()->create();
-    $assessment = Assessment::factory()->create(['course_id' => $course->id, 'staff_id' => $staff->id]);
 
-    actingAs($staff);
-    livewire(AssessmentLivewire::class, ['assessment' => $assessment])
+    actingAs($this->staff);
+    livewire(AssessmentLivewire::class, ['assessment' => $this->assessment])
         ->assertSee('Select a date')
         ->assertSee('Save Completed Date')
         ->set('feedback_completed_date', '2025-12-12')
@@ -62,7 +57,7 @@ it('allows feedback completed date to be saved', function () {
         ->assertDontSee('Select a date')
         ->assertDontSee('Save Completed Date');
 
-    expect($assessment->refresh()->feedback_completed_date)->toBe('2025-12-12');
+    expect($this->assessment->refresh()->feedback_completed_date)->toBe('2025-12-12');
 
     livewire(FeedbackReport::class)
         ->assertSee('2025-12-12');
@@ -70,55 +65,90 @@ it('allows feedback completed date to be saved', function () {
 });
 
 it('displays all complaints', function () {
-    $course = Course::factory()->create();
-    $staff = User::factory()->staff()->create();
-    $assessment = Assessment::factory()->create(['course_id' => $course->id, 'staff_id' => $staff->id]);
     $student = User::factory()->create();
-    $complaint = Complaint::factory()->create(['assessment_id' => $assessment->id, 'student_id' => $student->id, 'staff_id' => $staff->id]);
+    $complaint = Complaint::factory()->create(['assessment_id' => $this->assessment->id, 'student_id' => $student->id, 'staff_id' => $this->staff->id]);
 
     actingAs($this->admin);
-    livewire(AssessmentLivewire::class, ['assessment' => $assessment])
+    livewire(AssessmentLivewire::class, ['assessment' => $this->assessment])
         ->assertSee($complaint->student->name);
     
 });
 
 it('deletes assessment', function () {
-    $course = Course::factory()->create();
-    $staff = User::factory()->staff()->create();
-    $assessment = Assessment::factory()->create(['course_id' => $course->id, 'staff_id' => $staff->id]);
 
     actingAs($this->admin);
     livewire(FeedbackReport::class)
-        ->assertSee($assessment->type);
+        ->assertSee($this->assessment->type);
 
-    livewire(AssessmentLivewire::class, ['assessment' => $assessment])
+    livewire(AssessmentLivewire::class, ['assessment' => $this->assessment])
         ->call('deleteAssessment');
     
     livewire(FeedbackReport::class)
-        ->assertDontSee($assessment->type);
+        ->assertDontSee($this->assessment->type);
     
 });
 
-it('allows students to add complaints', function () {
-    $course = Course::factory()->create();
-    $staff = User::factory()->staff()->create();
-    $assessment = Assessment::factory()->create(['course_id' => $course->id, 'staff_id' => $staff->id, 'feedback_deadline' => now()->subDays(1)]);
+it('allows students to add complaints', function () {   
     $student = User::factory()->create();
+    
 
     actingAs($student);
-    livewire(AssessmentLivewire::class, ['assessment' => $assessment])
+    livewire(AssessmentLivewire::class, ['assessment' => $this->assessment])
         ->assertDontSee('Add Complaint');
 
-    $course->students()->attach($student->id);
+    $this->course->students()->attach($student->id);
 
-    livewire(AssessmentLivewire::class, ['assessment' => $assessment])
+    livewire(AssessmentLivewire::class, ['assessment' => $this->assessment])
+        ->assertSee('Add Complaint')
+        ->call('addComplaint');
+
+    expect($this->assessment->refresh()->complaints->count())->toBe(1);
+
+    actingAs($this->staff);
+    livewire(AssessmentLivewire::class, ['assessment' => $this->assessment])
+        ->assertSee($student->name);
+});
+
+it('does not allow students to complain twice', function () {
+    $student = User::factory()->create();
+    $this->course->students()->attach($student->id);
+    actingAs($student);
+    livewire(AssessmentLivewire::class, ['assessment' => $this->assessment])
         ->assertSee('Add Complaint')
         ->call('addComplaint')
-        ->assertSee($student->name);
+        ->assertDontSee('Add Complaint');
+});
 
-    expect($assessment->refresh()->complaints->count())->toBe(1);
+it('does not allow complaints on old assessments', function () {
+    $oldAssessment = Assessment::factory()->create(['course_id' => $this->course->id, 'staff_id' => $this->staff->id, 'deadline' => now()->subDays(100)]);
+    $student = User::factory()->create();
+    $this->course->students()->attach($student->id);
+    actingAs($student);
+    livewire(AssessmentLivewire::class, ['assessment' => $oldAssessment])
+        ->assertDontSee('Add Complaint');
+});
 
-    livewire(AssessmentLivewire::class, ['assessment' => $assessment])
-        ->assertSee('Complaints Left')
-        ->assertSee('1');
+
+it('only allows admins to edit or delete assessments', function () {
+
+    actingAs($this->staff);
+    livewire(AssessmentLivewire::class, ['assessment' => $this->assessment])
+        ->assertDontSee('delete-assessment')
+        ->assertDontSee('edit-assessment');
+    actingAs($this->admin);
+    livewire(AssessmentLivewire::class, ['assessment' => $this->assessment])
+        ->assertSee('delete-assessment')
+        ->assertSee('edit-assessment');
+});
+
+it('cannot be viewed by students and staff from other courses', function () {
+    $otherCourseStudent = User::factory()->create();
+    $otherCourseStaff = User::factory()->staff()->create();
+
+    actingAs($otherCourseStudent)->get(route('assessment.show', $this->assessment->id))
+        ->assertForbidden();
+
+    actingAs($otherCourseStaff)->get(route('assessment.show', $this->assessment->id))
+        ->assertForbidden();
+
 });

@@ -44,3 +44,26 @@ it('is created', function () {
         ->assertSee($course->code);
 });
 
+it('validates the form', function () {
+    livewire(CreateAssessment::class)
+        ->set('assessment_type', '')
+        ->set('staff_feedback_type', '')
+        ->set('staff_id', '')
+        ->set('course_id', '')
+        ->set('deadline', '')
+        ->set('feedback_deadline', '')
+        ->call('createAssessment')
+        ->assertHasErrors(['assessment_type', 'staff_feedback_type', 'staff_id', 'course_id', 'deadline', 'feedback_deadline']);
+});
+
+it('only allows admins to create assessments', function () {
+    $random_student = User::factory()->create();
+    $random_staff = User::factory()->staff()->create();
+
+    actingAs($random_student)->get(route('assessment.create'))
+        ->assertForbidden();
+
+    actingAs($random_staff)->get(route('assessment.create'))
+        ->assertForbidden();
+});
+
