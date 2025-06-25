@@ -22,6 +22,7 @@ return new class extends Migration
             $table->boolean('is_admin')->default(false);
             $table->boolean('is_student')->default(true);
             $table->boolean('is_staff')->default(false);
+            $table->string('school')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

@@ -22,6 +22,8 @@ Route::post('/logout', function () {
     return redirect()->route('login');
 })->name('logout');
 
+
+
 Route::middleware(['auth', 'can:is-admin'])->group(function () {
     Route::get('/report/feedback', FeedbackReport::class)->name('assessment.index');
 

@@ -56,7 +56,8 @@ class CreateAssessment extends Component
             'comment' => $this->comment
         ]);
 
-        //return redirect()->route('assessment.show', $this->assessment->id);
+        
         Flux::toast('Assessment created successfully.');
+        $this->redirect(route('assessment.show', $assessment->id), navigate: true);
     }
 }

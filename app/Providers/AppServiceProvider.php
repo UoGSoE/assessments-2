@@ -50,5 +50,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('view-complaints', function (User $user, Assessment $assessment) {
             return $user->is_admin || $assessment->staff_id === $user->id;
         });
+
+        Gate::define('filter-by-year', function (User $user) {
+            return $user->is_staff;
+        });
     }
 }

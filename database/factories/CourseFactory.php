@@ -16,10 +16,12 @@ class CourseFactory extends Factory
      */
     public function definition(): array
     {
+        $school = fake()->randomElement(['ENG', 'PHAS', 'MATH', 'CHEM', 'GES', 'COMP']);
         return [
-            'code' => fake()->randomElement(['ENG', 'PHAS', 'MATH', 'CHEM', 'GES', 'COMP']).fake()->numberBetween(1000, 9999),
+            'code' => $school.fake()->numberBetween(1000, 9999),
             'title' => fake()->randomElement(['Intro to Engineering', 'Intro to Computer Science', 'Intro to Mathematics']),
             'year' => fake()->randomElement(['1', '2', '3', '4', '5']),
+            'school' => $school,
         ];
     }
 }

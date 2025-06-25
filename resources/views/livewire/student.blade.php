@@ -21,10 +21,25 @@
     </div>
     <flux:separator class="mt-4 mb-4" />
     <flux:heading size="xl" class="mb-4">Assessments for {{ $student->getNameAttribute() }}</flux:heading>
-    @foreach ($assessments as $assessment)
-        <div class="mt-4">
-            <flux:heading><a class="text-blue-500" href="{{ route('assessment.show', $assessment->id) }}">{{ $assessment->type }}</a></flux:heading>
-            <flux:text>{{ $assessment->deadline }}</flux:text>
-        </div>
-    @endforeach
+    <div id='calendar'></div>
 </div>
+
+@push('scripts')
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js'></script>
+<script>
+
+document.addEventListener('livewire:initialized', function() {
+    
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        events: @json($assessmentsArray),
+        initialView: 'dayGridMonth',
+        displayEventTime: false,
+        eventDisplay: 'block',
+        
+    });
+    calendar.render();
+});
+
+</script>
+@endpush

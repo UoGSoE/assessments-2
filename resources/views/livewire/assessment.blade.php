@@ -46,7 +46,7 @@
         <flux:field class="mb-4">
             <flux:label>Feedback Completed</flux:label>
             @can('add-completed-date', $assessment)
-                <flux:date-picker wire:model="feedback_completed_date" />
+                <flux:date-picker class="mb-2" wire:model="feedback_completed_date" />
                 <flux:error name="feedback_deadline" />
                 <flux:button type="submit">Save Completed Date</flux:button>
             @endcan

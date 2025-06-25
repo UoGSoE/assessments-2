@@ -57,7 +57,7 @@ it('allows feedback completed date to be saved', function () {
         ->assertDontSee('Select a date')
         ->assertDontSee('Save Completed Date');
 
-    expect($this->assessment->refresh()->feedback_completed_date)->toBe('2025-12-12');
+    expect($this->assessment->refresh()->feedback_completed_date->format('Y-m-d'))->toBe('2025-12-12');
 
     livewire(FeedbackReport::class)
         ->assertSee('2025-12-12');

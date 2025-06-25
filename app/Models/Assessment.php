@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Auth;
 
 class Assessment extends Model
 {
@@ -17,6 +18,11 @@ class Assessment extends Model
 
     protected $fillable = ['type', 'course_id', 'staff_id','deadline', 'feedback_type', 'feedback_deadline', 'feedback_completed_date', 'comment', 'office_notified'];
 
+    protected $casts = [
+        'deadline' => 'datetime',
+        'feedback_deadline' => 'datetime',
+        'feedback_completed_date' => 'datetime',
+    ];
 
     public function course(): BelongsTo
     {
@@ -43,6 +49,8 @@ class Assessment extends Model
         $existingComplaint = Complaint::where('student_id', $student->id)->where('assessment_id', $this->id)->first();
         return $existingComplaint ? true : false;
     }
+
+    
 
 
 }

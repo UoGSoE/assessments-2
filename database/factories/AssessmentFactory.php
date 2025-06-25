@@ -18,15 +18,15 @@ class AssessmentFactory extends Factory
      */
     public function definition(): array
     {
+        $deadline = fake()->dateTimeBetween('now', '+1 month');
+        $feedbackDeadline = fake()->dateTimeBetween($deadline, '+2 month');
         return [
-            //'deadline' => fake()->dateTimeBetween('now', '+1 month'),
-            'deadline' => fake()->date(),
+            'deadline' => $deadline,
             'type' => fake()->randomElement(['Exam 1', 'Assignment 1', 'Quiz 1']),
             'course_id' => Course::factory(),
             'staff_id' => User::factory()->staff(),
             'feedback_type' => fake()->randomElement(['Moodle', 'Other']),
-            //'feedback_deadline' => fake()->dateTimeBetween('now', '+2 month')
-            'feedback_deadline' => fake()->date(),
+            'feedback_deadline' => $feedbackDeadline,
         ];
     }
 }

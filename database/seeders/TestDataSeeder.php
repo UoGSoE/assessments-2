@@ -17,6 +17,8 @@ class TestDataSeeder extends Seeder
      */
     public function run(): void
     {
+        User::factory()->admin()->create();
+
         $courses = Course::factory()->count(5)->create();
         
         $students = User::factory()->count(10)->create();

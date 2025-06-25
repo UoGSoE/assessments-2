@@ -48,6 +48,17 @@ class UserFactory extends Factory
         ]);
     }
 
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'username' => fake()->unique()->regexify('[a-zA-Z]+[0-9]+[a-zA-Z]+'),
+            'is_student' => false,
+            'is_staff' => false,
+            'is_admin' => true,
+            'school' => fake()->randomElement(['ENG', 'PHAS', 'MATH', 'CHEM', 'GES', 'COMP'])
+        ]);
+    }
+
     /**
      * Indicate that the model's email address should be unverified.
      */
