@@ -13,13 +13,15 @@ return new class extends Migration
     {
         Schema::create('assessments', function (Blueprint $table) {
             $table->id();
-            $table->date('deadline');
+            $table->datetime('deadline', 0)->nullable();
+            $table->datetime('submission_window_start', 0)->nullable();
+            $table->datetime('submission_window_end', 0)->nullable();
             $table->string('type');
             $table->foreignId('course_id')->constrained('courses')->onDelete('cascade');
             $table->foreignId('staff_id')->constrained('users')->onDelete('cascade');
             $table->string('feedback_type');
-            $table->date('feedback_deadline');
-            $table->date('feedback_completed_date')->nullable();
+            $table->datetime('feedback_deadline', 0);
+            $table->datetime('feedback_completed_date', 0)->nullable();
             $table->text('comment')->nullable();
             $table->boolean('office_notified')->default(false);
             $table->timestamps();

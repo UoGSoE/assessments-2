@@ -16,12 +16,14 @@ class Assessment extends Model
     /** @use HasFactory<\Database\Factories\AssessmentFactory> */
     use HasFactory;
 
-    protected $fillable = ['type', 'course_id', 'staff_id','deadline', 'feedback_type', 'feedback_deadline', 'feedback_completed_date', 'comment', 'office_notified'];
+    protected $fillable = ['type', 'course_id', 'staff_id', 'deadline', 'submission_window_start', 'submission_window_end', 'feedback_type', 'feedback_deadline', 'feedback_completed_date', 'comment', 'office_notified'];
 
     protected $casts = [
         'deadline' => 'datetime',
         'feedback_deadline' => 'datetime',
         'feedback_completed_date' => 'datetime',
+        'submission_window_start' => 'datetime',
+        'submission_window_end' => 'datetime',
     ];
 
     public function course(): BelongsTo
@@ -49,9 +51,4 @@ class Assessment extends Model
         $existingComplaint = Complaint::where('student_id', $student->id)->where('assessment_id', $this->id)->first();
         return $existingComplaint ? true : false;
     }
-
-    
-
-
 }
-    
