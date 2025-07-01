@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('title');
             $table->boolean('is_active')->default(true);
             $table->string('school')->nullable();
+            $table->string('discipline')->nullable();
             $table->string('year');
             $table->timestamps();
         });

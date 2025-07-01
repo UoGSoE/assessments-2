@@ -2,8 +2,9 @@
 
 namespace App\Importers;
 
-use App\Models\Course;
 use App\Models\User;
+use App\Models\Course;
+use Illuminate\Support\Str;
 
 class StudentCourses
 {
@@ -29,13 +30,17 @@ class StudentCourses
                 $errors[] = "Course with code '{$row['course']}' not found - please add it to the system first.";
                 continue;
             }
-            $student = User::where('username', $row['username'])->first();
-            if (!$student) {
-                $errors[] = "Student with GUID '{$row['username']}' not found - please add them to the system first.";
-                continue;
-            }
+            $student = User::firstOrCreate([
+                'username' => $row['username'],
+            ], [
+                'forenames' => $row['forenames'],
+                'surname' => $row['surname'],
+                'email' => $row['username'] . '@student.gla.ac.uk',
+                'password' => bcrypt(Str::random(64))
+            ]);
+
             $student->coursesAsStudent()->syncWithoutDetaching([$course->id]);
         }
-        return [];
+        return $errors;
     }
 }

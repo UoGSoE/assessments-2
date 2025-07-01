@@ -44,9 +44,9 @@ it('displays assessment details', function () {
         ->assertSee($assessment1->staff->name)
         ->assertSee($assessment2->staff->name)
         ->assertSee($assessment3->staff->name)
-        ->assertSee($assessment1->feedback_deadline)
-        ->assertSee($assessment2->feedback_deadline)
-        ->assertSee($assessment3->feedback_deadline);
+        ->assertSee($assessment1->feedback_deadline->format('d/m/Y'))
+        ->assertSee($assessment2->feedback_deadline->format('d/m/Y'))
+        ->assertSee($assessment3->feedback_deadline->format('d/m/Y'));
 
 });
 

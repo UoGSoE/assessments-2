@@ -60,7 +60,7 @@ it('allows feedback completed date to be saved', function () {
     expect($this->assessment->refresh()->feedback_completed_date->format('Y-m-d'))->toBe('2025-12-12');
 
     livewire(FeedbackReport::class)
-        ->assertSee('2025-12-12');
+        ->assertSee('12/12/2025');
 
 });
 

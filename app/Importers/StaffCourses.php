@@ -2,8 +2,9 @@
 
 namespace App\Importers;
 
-use App\Models\Course;
 use App\Models\User;
+use App\Models\Course;
+use Illuminate\Support\Str;
 
 class StaffCourses
 {
@@ -26,13 +27,19 @@ class StaffCourses
                 $errors[] = "Course with code '{$row['course_code']}' not found - please add it to the system first.";
                 continue;
             }
-            $staff = User::where('username', $row['username'])->first();
-            if (!$staff) {
-                $errors[] = "Staff with GUID '{$row['username']}' not found - please add them to the system first.";
-                continue;
-            }
+            $staff = User::firstOrCreate([
+                'username' => $row['username'],
+            ], [
+                'forenames' => $row['forenames'],
+                'surname' => $row['surname'],
+                'email' => $row['email'],
+                'password' => bcrypt(Str::random(64)),
+                'is_staff' => true,
+                'is_student' => false
+            ]);
+
             $staff->coursesAsStaff()->syncWithoutDetaching([$course->id]);
         }
-        return [];
+        return $errors;
     }
 }

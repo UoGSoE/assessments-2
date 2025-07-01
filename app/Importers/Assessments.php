@@ -26,7 +26,6 @@ class Assessments
                 continue;
             }
 
-
             $course = Course::where('code', $row['course_code'])->first();
             if (!$course) {
                 $errors[] = "Course with code '{$row['course_code']}' not found - please add it to the system first.";
@@ -44,7 +43,7 @@ class Assessments
             if ($deadline != '') {
                 try {
                     if (!$deadline instanceof \DateTime) {
-                        $deadline = Carbon::createFromFormat('d/m/Y', $deadline);
+                        $deadline = Carbon::createFromFormat('d/m/Y H:i', $deadline);
 
 
                         if (strpos($row['deadline'], ':') === false) {
@@ -65,17 +64,21 @@ class Assessments
 
             $feedbackDeadline = $deadline->addDays(21);
 
-            $assessment = Assessment::create([
-                'course_id' => $course->id,
-                'type' => $row['assessment_type'],
-                'feedback_type' => $row['feedback_type'],
-                'staff_id' => $staff->id,
-                'deadline' => $deadline,
-                'feedback_deadline' => $feedbackDeadline,
-                // TODO: import complaints
-                'complaints' => 0,
-                'comment' => $row['comment'],
-            ]);
+            $assessment = Assessment::updateOrCreate(
+                [
+                    'course_id' => $course->id,
+                    'type' => $row['assessment_type'],
+                    'staff_id' => $staff->id
+                ],
+                [
+                    'feedback_type' => $row['feedback_type'],
+                    'deadline' => $deadline,
+                    'feedback_deadline' => $feedbackDeadline,
+                    // TODO: import complaints
+                    'complaints' => 0,
+                    'comment' => $row['comment'],
+                ]
+            );
         }
         return $errors;
     }

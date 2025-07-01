@@ -35,6 +35,7 @@ class Courses
 
     public function process($rows): array
     {
+        $errors = [];
         foreach ($rows as $row) {
             $row = [
                 'course_title' => $row[0],
@@ -53,11 +54,13 @@ class Courses
                         'title' => $row['course_title'],
                         'code' => $row['course_code'],
                         'school' => $this->codeToSchool($row['course_code']),
-                        'year' => $this->codeToYear($row['course_code'])
+                        'year' => $this->codeToYear($row['course_code']),
+                        'active' => $row['active'],
+                        'discipline' => $row['discipline']
                     ]
                 );
             }
         }
-        return [];
+        return $errors;
     }
 }

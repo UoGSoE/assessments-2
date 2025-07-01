@@ -23,6 +23,7 @@ class ImportPage extends Component
     public $description;
     public $formatText;
     public $exampleText;
+    public $routeName;
 
     #[Validate('required|file|mimes:xlsx,xls')]
     public $importFile;
@@ -36,6 +37,15 @@ class ImportPage extends Component
         }
 
         $this->fileType = $fileType;
+
+        $this->routeName = match($fileType) {
+            'courses' => 'import.courses.upload',
+            'student-courses' => 'import.student-courses.upload',
+            'staff-courses' => 'import.staff-courses.upload',
+            'deadlines' => 'import.deadlines.upload',
+            'submission-windows' => 'import.submission-windows.upload',
+            default => 'import.courses.upload'
+        };
 
         if ($fileType == 'courses') {
             $this->importCoursesText();
@@ -53,138 +63,6 @@ class ImportPage extends Component
     public function render()
     {
         return view('livewire.import-page');
-    }
-
-    public function chooseImport()
-    {
-        if ($this->fileType == 'courses') {
-            $this->importCourses();
-        } else if ($this->fileType == 'student-courses') {
-            $this->importStudentCourses();
-        } else if ($this->fileType == 'staff-courses') {
-            $this->importStaffCourses();
-        } else if ($this->fileType == 'deadlines') {
-            $this->importDeadlines();
-        } else if ($this->fileType == 'submission-windows') {
-            $this->importSubmissionWindows();
-        }
-    }
-
-    public function codeToSchool($code)
-    {
-        $school = substr($code, 0, 3);
-        if ($school == 'MAT') {
-            return 'MATH';
-        } else if ($school == 'PHA') {
-            return 'PHAS';
-        } else if ($school == 'CHE') {
-            return 'CHEM';
-        } else if ($school == 'COMP') {
-            return 'COMP';
-        } else {
-            return $school;
-        }
-    }
-
-    public function codeToYear($code)
-    {
-        if (in_array($this->codeToSchool($code), ['COMP', 'MATH', 'PHAS', 'CHEM'])) {
-            $year = substr($code, 4, 1);
-        } else {
-            $year = substr($code, 3, 1);
-        }
-        return $year;
-    }
-
-    public function importCourses()
-    {
-        $this->validate([
-            'importFile' => 'required|file|mimes:xlsx,xls'
-        ]);
-
-        try {
-            $data = (new ExcelSheet)->trimmedImport($this->importFile->getRealPath());
-            $importer = (new Courses())->process($data);
-
-            $this->importFile = null;
-            Flux::toast('File imported successfully', variant: 'success');
-            $this->redirect(route('assessment.index'), navigate: true);
-        } catch (\Exception $e) {
-            session()->flash('error', 'Error importing file: ' . $e->getMessage());
-        }
-    }
-
-    public function importDeadlines()
-    {
-        $this->validate([
-            'importFile' => 'required|file|mimes:xlsx,xls'
-        ]);
-
-        try {
-            $data = (new ExcelSheet)->trimmedImport($this->importFile->getRealPath());
-            $importer = (new Assessments())->process($data);
-
-            $this->importFile = null;
-            Flux::toast('File imported successfully', variant: 'success');
-            $this->redirect(route('assessment.index'), navigate: true);
-        } catch (\Exception $e) {
-            session()->flash('error', 'Error importing file: ' . $e->getMessage());
-        }
-    }
-
-    public function importStudentCourses()
-    {
-        $this->validate([
-            'importFile' => 'required|file|mimes:xlsx,xls'
-        ]);
-
-        try {
-            $data = (new ExcelSheet)->trimmedImport($this->importFile->getRealPath());
-            $errors = (new StudentCourses())->process($data);
-
-            $this->importFile = null;
-            Flux::toast('File imported successfully', variant: 'success');
-            $this->redirect(route('assessment.index'), navigate: true);
-        } catch (\Exception $e) {
-            session()->flash('error', 'Error importing file: ' . $e->getMessage());
-        }
-    }
-
-    public function importStaffCourses()
-    {
-        $this->validate([
-            'importFile' => 'required|file|mimes:xlsx,xls'
-        ]);
-
-        try {
-            $data = (new ExcelSheet)->trimmedImport($this->importFile->getRealPath());
-
-            $errors = (new StaffCourses())->process($data);
-
-            $this->importFile = null;
-            Flux::toast('File imported successfully', variant: 'success');
-            $this->redirect(route('assessment.index'), navigate: true);
-        } catch (\Exception $e) {
-            session()->flash('error', 'Error importing file: ' . $e->getMessage());
-        }
-    }
-
-    public function importSubmissionWindows()
-    {
-        $this->validate([
-            'importFile' => 'required|file|mimes:xlsx,xls'
-        ]);
-
-        try {
-            $data = (new ExcelSheet)->trimmedImport($this->importFile->getRealPath());
-            $errors = (new SubmissionWindows())->process($data);
-
-            $this->importFile = null;
-            Flux::toast('File imported successfully', variant: 'success');
-            $this->redirect(route('assessment.index'), navigate: true);
-        } catch (\Exception $e) {
-            session()->flash('error', 'Error importing file: ' . $e->getMessage());
-        }
     }
 
     public function importCoursesText() {
