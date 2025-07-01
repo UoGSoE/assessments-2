@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 
 class ImportJson extends Command
 {
@@ -33,7 +34,12 @@ class ImportJson extends Command
 
         $this->info('Importing staff users...' . count($data['users']['staff']));
 
+        $passwords  = [];
+        foreach(range(1, 5) as $i) {
+            $passwords[] = \Illuminate\Support\Facades\Hash::make(Str::random(32), ['rounds' => 12]);
+        }
         foreach ($data['users']['staff'] as $user) {
+            $this->info('Importing user: ' . $user['email']);
             $user = User::firstOrCreate([
                 'email' => $user['email'],
             ], [
@@ -45,7 +51,7 @@ class ImportJson extends Command
                 'is_admin' => $user['is_admin'],
                 'is_staff' => true,
                 'school' => $user['is_admin'] ? 'ENG' : null,
-                'password' => bcrypt(Str::random(64)),
+                'password' => Arr::random($passwords)
             ]);
         }
 
@@ -67,7 +73,7 @@ class ImportJson extends Command
                 'is_admin' => false,
                 'is_staff' => false,
                 'school' => null,
-                'password' => bcrypt(Str::random(64)),
+                'password' => Arr::random($passwords)
             ]);
             $count++;
             if ($count % 100 === 0) {
