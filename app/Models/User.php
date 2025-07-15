@@ -78,4 +78,8 @@ class User extends Authenticatable
         return trim($this->surname . ', ' . $this->forenames);
     }
 
+    public function loginLogs(): HasMany
+    {
+        return $this->hasMany(LoginLog::class);
+    }
 }

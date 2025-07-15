@@ -3,7 +3,9 @@
     <div class="flex flex-row justify-between items-baseline">
         <flux:heading size="xl" class="mb-4">Feedback Report</flux:heading>
         <div class="flex flex-row gap-2">
-            <flux:button variant="danger" icon="trash" wire:click="deleteAllData"></flux:button>
+            <flux:modal.trigger name="removeAllDataModal">
+                <flux:button variant="danger" icon="trash"></flux:button>
+            </flux:modal.trigger>
             <flux:dropdown>
                 <flux:button icon:trailing="chevron-down">More</flux:button>
                 <flux:menu>
@@ -12,13 +14,15 @@
                     <flux:menu.item icon="user"><a href="{{ route('staff.index') }}">Staff Report</a></flux:menu.item>
                     <flux:menu.separator />
                     <a href="{{ route('import.create', ['fileType' => 'courses']) }}"><flux:menu.item icon="arrow-up-tray">1. Import courses</flux:menu.item></a>
-                    <flux:menu.item icon="arrow-up-tray" wire:click="deleteAllData">2. Remove all students' courses</flux:menu.item>
+                    <flux:modal.trigger name="removeAllStudentCoursesModal">
+                        <flux:menu.item icon="arrow-up-tray">2. Remove all students' courses</flux:menu.item>
+                    </flux:modal.trigger>
                     <a href="{{ route('import.create', ['fileType' => 'student-courses']) }}"><flux:menu.item icon="arrow-up-tray">3. Import student allocations</flux:menu.item></a>
                     <a href="{{ route('import.create', ['fileType' => 'staff-courses']) }}"><flux:menu.item icon="arrow-up-tray">4. Import staff allocations</flux:menu.item></a>
                     <a href="{{ route('import.create', ['fileType' => 'deadlines']) }}"><flux:menu.item icon="arrow-up-tray">5. Import deadlines</flux:menu.item></a>
                     <a href="{{ route('import.create', ['fileType' => 'submission-windows']) }}"><flux:menu.item icon="arrow-up-tray">6. Import submission windows</flux:menu.item></a>
                     <flux:menu.separator />
-                    <flux:menu.item icon="list-bullet">Login logs</flux:menu.item>
+                    <a href="{{ route('login-logs') }}"><flux:menu.item icon="list-bullet">Login logs</flux:menu.item></a>
                 </flux:menu>
             </flux:dropdown>
         </div>
@@ -30,7 +34,7 @@
     </div>
     
     @if ($assessments->count() > 0)
-    <flux:table>
+    <flux:table class="table-fixed">
     <flux:table.columns>
         <flux:table.column>Course</flux:table.column>
         <flux:table.column>Level</flux:table.column>
@@ -63,5 +67,45 @@
     <flux:heading size="lg" class="mb-4 mt-4">No assessments found.</flux:heading>
     @endif
 
-    
+    <flux:modal name="removeAllStudentCoursesModal" class="min-w-[22rem]">
+        <div class="space-y-6">
+            <div>
+                <flux:heading size="lg">Remove All Students' Courses</flux:heading>
+                <flux:text class="mt-2">
+                    <p>
+                        Would you like to remove all students from their courses?<br>
+                        <span class="text-red-500">This action cannot be undone.</span>
+                    </p>
+                </flux:text>
+            </div>
+            <div class="flex gap-2">
+                <flux:spacer />
+                <flux:modal.close>
+                    <flux:button variant="ghost">Cancel</flux:button>
+                </flux:modal.close>
+                <flux:button type="submit" variant="danger" wire:click="removeAllStudentCourses">Remove all students' courses</flux:button>
+            </div>
+        </div>
+    </flux:modal>
+
+    <flux:modal name="removeAllDataModal" class="min-w-[22rem]">
+        <div class="space-y-6">
+            <div>
+                <flux:heading size="lg">Remove All Data</flux:heading>
+                <flux:text class="mt-2">
+                    <p>
+                        Would you like to remove all assessments and complaints?<br>
+                        <span class="text-red-500">This action cannot be undone.</span>
+                    </p>
+                </flux:text>
+            </div>
+            <div class="flex gap-2">
+                <flux:spacer />
+                <flux:modal.close>
+                    <flux:button variant="ghost">Cancel</flux:button>
+                </flux:modal.close>
+                <flux:button type="submit" variant="danger" wire:click="deleteAllData">Remove all assessments and complaints</flux:button>
+            </div>
+        </div>
+    </flux:modal>
 </div>

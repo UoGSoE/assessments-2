@@ -24,6 +24,7 @@ class ImportPage extends Component
     public $formatText;
     public $exampleText;
     public $routeName;
+    public $errors;
 
     #[Validate('required|file|mimes:xlsx,xls')]
     public $importFile;

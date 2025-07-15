@@ -28,8 +28,8 @@ it('can be rendered', function () {
         ->assertSee('Set By')
         ->assertSee('Assessment Type')
         ->assertSee('Feedback Completed')
-        ->assertSee('Complaints Left')
-        ->assertDontSee('Add Complaint');
+        ->assertSee('Feedbacks Left')
+        ->assertDontSee('Report assessment feedback is overdue');
 });
 
 
@@ -94,12 +94,12 @@ it('allows students to add complaints', function () {
 
     actingAs($student);
     livewire(AssessmentLivewire::class, ['assessment' => $this->assessment])
-        ->assertDontSee('Add Complaint');
+        ->assertDontSee('Report assessment feedback is overdue');
 
     $this->course->students()->attach($student->id);
 
     livewire(AssessmentLivewire::class, ['assessment' => $this->assessment])
-        ->assertSee('Add Complaint')
+        ->assertSee('Report assessment feedback is overdue')
         ->call('addComplaint');
 
     expect($this->assessment->refresh()->complaints->count())->toBe(1);
@@ -114,9 +114,9 @@ it('does not allow students to complain twice', function () {
     $this->course->students()->attach($student->id);
     actingAs($student);
     livewire(AssessmentLivewire::class, ['assessment' => $this->assessment])
-        ->assertSee('Add Complaint')
+        ->assertSee('Report assessment feedback is overdue')
         ->call('addComplaint')
-        ->assertDontSee('Add Complaint');
+        ->assertDontSee('Report assessment feedback is overdue');
 });
 
 it('does not allow complaints on old assessments', function () {
@@ -125,7 +125,7 @@ it('does not allow complaints on old assessments', function () {
     $this->course->students()->attach($student->id);
     actingAs($student);
     livewire(AssessmentLivewire::class, ['assessment' => $oldAssessment])
-        ->assertDontSee('Add Complaint');
+        ->assertDontSee('Report assessment feedback is overdue');
 });
 
 

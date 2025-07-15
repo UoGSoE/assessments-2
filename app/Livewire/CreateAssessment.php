@@ -33,7 +33,7 @@ class CreateAssessment extends Component
 
     public function mount()
     {
-        $this->staff = User::where('is_student', false)->get();
+        $this->staff = User::where('is_staff', true)->get();
         $this->courses = Course::all();
     }
 

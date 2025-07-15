@@ -71,18 +71,36 @@ describe('showing all forms of data and deleting them', function () {
             ->assertSee(3);
     });
 
-    // TODO: Establish what exactly should be deleted
-    it('deletes all data', function () {
-        $complaint = Complaint::factory()->count(3)->create(['assessment_id' => $this->assessment->id, 'staff_id' => $this->staff->id, 'student_id' => $this->student->id]);
+    it('removes all student courses', function () {
+        $student2 = User::factory()->create(['is_staff' => false]);
+        $course2 = ModelsCourse::factory()->create();
+        
+        $course2->students()->attach($student2);
+        
+        expect($this->student->coursesAsStudent()->count())->toBe(1);
+        expect($student2->coursesAsStudent()->count())->toBe(1);
 
-        expect(Assessment::count())->toBe(1);
+        actingAs($this->admin);
+        livewire(FeedbackReport::class)
+            ->call('removeAllStudentCourses');
+
+        expect($this->student->coursesAsStudent()->count())->toBe(0);
+        expect($student2->coursesAsStudent()->count())->toBe(0);
+    });
+
+    it('deletes all assessments and complaints', function () {
+        $assessment2 = Assessment::factory()->create(['staff_id' => $this->staff->id, 'course_id' => $this->course->id]);
+        $complaint1 = Complaint::factory()->create(['assessment_id' => $this->assessment->id, 'staff_id' => $this->staff->id, 'student_id' => $this->student->id]);
+        $complaint2 = Complaint::factory()->create(['assessment_id' => $this->assessment->id, 'staff_id' => $this->staff->id, 'student_id' => $this->student->id]);
+        $complaint3 = Complaint::factory()->create(['assessment_id' => $assessment2->id, 'staff_id' => $this->staff->id, 'student_id' => $this->student->id]);
+
+        expect(Assessment::count())->toBe(2);
         expect(Complaint::count())->toBe(3);
 
         actingAs($this->admin);
         livewire(FeedbackReport::class)
             ->assertSee($this->assessment->course->code)
             ->assertSee($this->assessment->type)
-            ->assertSee(3)
             ->call('deleteAllData');
 
         expect(Assessment::count())->toBe(0);

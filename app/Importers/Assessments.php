@@ -62,7 +62,7 @@ class Assessments
             }
 
 
-            $feedbackDeadline = $deadline->addDays(21);
+            $feedbackDeadline = $deadline->addDays(config('assessments.feedback_grace_days'));
 
             $assessment = Assessment::updateOrCreate(
                 [

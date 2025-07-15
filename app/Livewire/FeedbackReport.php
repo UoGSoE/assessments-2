@@ -2,11 +2,6 @@
 
 namespace App\Livewire;
 
-use App\Importers\Assessments;
-use App\Importers\Courses;
-use App\Importers\StaffCourses;
-use App\Importers\StudentCourses;
-use App\Importers\SubmissionWindows;
 use App\Models\Assessment;
 use App\Models\Complaint;
 use App\Models\Course;
@@ -17,8 +12,6 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use OpenSpout\Common\Entity\Cell;
 use OpenSpout\Common\Entity\Row;
-use Illuminate\Http\Request;
-use Ohffs\SimpleSpout\ExcelSheet;
 
 class FeedbackReport extends Component
 {
@@ -35,32 +28,25 @@ class FeedbackReport extends Component
 
     public function mount()
     {
-        $this->assessments = Assessment::with(['course', 'staff', 'complaints'])->get();
+        $this->assessments = Assessment::with(['course', 'staff', 'complaints'])->orderBy('deadline', 'desc')->get();
     }
 
     public function updatedSearchText($value)
     {
+        // TODO: Make it so it searches more than just the course code
         $this->reset('assessments');
         $searchTerm = $value;
         $courses = Course::where('code', 'like', '%' . $searchTerm . '%')->get();
         if ($courses->count() > 0) {
             $this->assessments = Assessment::with(['course', 'staff', 'complaints'])->whereIn('course_id', $courses->pluck('id'))->get();
         } else {
-            $this->assessments = [];
+            $this->assessments = collect();
         }
     }
 
     public function render()
     {
         return view('livewire.feedback-report');
-    }
-
-    public function deleteAllData()
-    {
-        Complaint::query()->delete();
-        Assessment::query()->delete();
-
-        return redirect()->route('assessment.index');
     }
 
     public function exportAsExcel()
@@ -113,5 +99,27 @@ class FeedbackReport extends Component
         return response()->download($filePath);
     }
 
-    
+    public function removeAllStudentCourses()
+    {
+        $students = User::where('is_staff', false)->where('is_staff', false)->get();
+
+        foreach ($students as $student) {
+            $student->coursesAsStudent()->detach();
+        }
+        Flux::toast('All students\' courses removed successfully.', variant: 'success');
+        $this->redirect(route('assessment.index'), navigate: true);
+    }
+
+    public function deleteAllData()
+    {
+        foreach (Complaint::all() as $complaint) {
+            $complaint->delete();
+        }
+        
+        foreach (Assessment::all() as $assessment) {
+            $assessment->delete();
+        }
+        Flux::toast('All assessments and complaints removed successfully.', variant: 'success');
+        $this->redirect(route('assessment.index'), navigate: true);
+    }
 }

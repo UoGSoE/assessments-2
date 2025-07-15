@@ -21,7 +21,7 @@ use function Pest\Laravel\post;
 use function Pest\Livewire\livewire;
 
 beforeEach(function () {
-    $this->admin = User::factory()->create(['is_admin' => true, 'is_student' => false, 'is_staff' => false]);
+    $this->admin = User::factory()->create(['is_admin' => true, 'is_staff' => false]);
     $this->user = User::factory()->create(['is_admin' => false]);
     Storage::fake('local');
 });

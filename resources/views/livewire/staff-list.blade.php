@@ -1,7 +1,7 @@
 <div>
     <div class="flex flex-row gap-2 mb-4 items-baseline">
         <flux:heading size="xl" class="mb-4">Staff Report</flux:heading>
-        <flux:button icon="arrow-down-tray" wire:click="editAssessment"></flux:button>
+        <flux:button icon="arrow-down-tray" wire:click="exportStaffList"></flux:button>
     </div>
     <div class="flex flex-row gap-4 items-center w-full">
         <flux:text>Search</flux:text>

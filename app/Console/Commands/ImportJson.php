@@ -43,9 +43,9 @@ class ImportJson extends Command
 
         $oldUserMap = [];
 
+        
         foreach ($data['users']['staff'] as $user) {
-            $this->info('Importing user: ' . $user['email']);
-            $user = User::firstOrCreate([
+            $staffMember = User::firstOrCreate([
                 'email' => $user['email'],
             ], [
                 'username' => $user['username'],
@@ -57,15 +57,13 @@ class ImportJson extends Command
                 'school' => $user['is_admin'] ? 'ENG' : null,
                 'password' => Arr::random($passwords)
             ]);
-            $oldUserMap[$user['id']] = $user->id;
+            $oldUserMap[$user['id']] = $staffMember->id;
         }
-
-
-
+        
         $this->info('Importing student users...' . count($data['users']['students']));
 
         foreach ($data['users']['students'] as $user) {
-            $user = User::firstOrCreate([
+            $student = User::firstOrCreate([
                 'email' => $user['email'],
             ], [
                 'username' => $user['username'],
@@ -77,7 +75,7 @@ class ImportJson extends Command
                 'school' => null,
                 'password' => Arr::random($passwords)
             ]);
-            $oldUserMap[$user['id']] = $user->id;
+            $oldUserMap[$user['id']] = $student->id;
         }
 
         $oldCourseMap = [];
@@ -102,7 +100,6 @@ class ImportJson extends Command
         $this->info('Importing assessments...' . count($data['assessments']));
 
         foreach ($data['assessments'] as $assessment) {
-            $newCourseId = null;
             if (!isset($oldCourseMap[$assessment['course_id']])) {
                 $course = Course::where('code', $assessment['course']['code'])->first();
                 if (!$course) {

@@ -33,7 +33,6 @@ class UserFactory extends Factory
             // TODO: Change back to hashed value after testing
             //'password' => static::$password ??= Hash::make('password'),
             'password' => 'secret',
-            'is_student' => true,
             'is_staff' => false,
             'remember_token' => Str::random(10),
         ];

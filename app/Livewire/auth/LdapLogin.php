@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Auth;
 
+use App\Models\LoginLog;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -96,6 +97,14 @@ class LdapLogin extends Component
             }
         }
         Auth::login($localUser, $this->remember);
+        if ($localUser->is_admin) {
+            $userType = 'admin';
+        } elseif ($localUser->is_staff) {
+            $userType = 'staff';
+        } else {
+            $userType = 'student';
+        }
+        LoginLog::create(['user_id' => $localUser->id, 'user_type' => $userType]);
 
         return redirect()->route('home');
     }

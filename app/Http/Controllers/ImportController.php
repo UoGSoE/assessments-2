@@ -49,12 +49,13 @@ class ImportController extends Controller
 
         try {
             $data = (new ExcelSheet)->trimmedImport($request->importFile->getRealPath());
-            $importer = (new Courses())->process($data);
+            $errors = (new Courses())->process($data);
 
             Flux::toast('File imported successfully', variant: 'success');
             return redirect()->route('assessment.index');
         } catch (\Exception $e) {
             session()->flash('error', 'Error importing file: ' . $e->getMessage());
+            return redirect()->back();
         }
     }
 
@@ -66,12 +67,13 @@ class ImportController extends Controller
 
         try {
             $data = (new ExcelSheet)->trimmedImport($request->importFile->getRealPath());
-            $importer = (new Assessments())->process($data);
+            $errors = (new Assessments())->process($data);
 
             Flux::toast('File imported successfully', variant: 'success');
             return redirect()->route('assessment.index');
         } catch (\Exception $e) {
             session()->flash('error', 'Error importing file: ' . $e->getMessage());
+            return redirect()->back();
         }
     }
 
@@ -89,6 +91,7 @@ class ImportController extends Controller
             return redirect()->route('assessment.index');
         } catch (\Exception $e) {
             session()->flash('error', 'Error importing file: ' . $e->getMessage());
+            return redirect()->back();
         }
     }
 
@@ -107,6 +110,7 @@ class ImportController extends Controller
             return redirect()->route('assessment.index');
         } catch (\Exception $e) {
             session()->flash('error', 'Error importing file: ' . $e->getMessage());
+            return redirect()->back();
         }
     }
 
@@ -124,6 +128,7 @@ class ImportController extends Controller
             return redirect()->route('assessment.index');
         } catch (\Exception $e) {
             session()->flash('error', 'Error importing file: ' . $e->getMessage());
+            return redirect()->back();
         }
     }
 }

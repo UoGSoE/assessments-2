@@ -13,10 +13,12 @@ beforeEach(function () {
 
 it('can be rendered', function () {
     Carbon::setTestNow();
+
     actingAs($this->admin);
     livewire(Home::class)
         ->assertSee('Your Assessments')
         ->assertSee('All years');
+
         // TODO: How to test the calendar?
         //->assertSee('June 2025');
 });

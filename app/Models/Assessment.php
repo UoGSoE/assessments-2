@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\User;
 use App\Models\Course;
 use App\Models\Complaint;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -50,5 +51,41 @@ class Assessment extends Model
     {
         $existingComplaint = Complaint::where('student_id', $student->id)->where('assessment_id', $this->id)->first();
         return $existingComplaint ? true : false;
+    }
+
+    public function canBeAutoSignedOff()
+    {
+        if ($this->feedback_deadline->gte(Carbon::now())) {
+            return false;
+        }
+        if ($this->feedback_completed_date) {
+            return false;
+        }
+        if ($this->complaints->count() > 0) {
+            return false;
+        }
+        if ($this->feedback_deadline->addDays(21)->gte(Carbon::now())) {
+            return false;
+        }
+        return true;
+    }
+
+    public function percentageNegativeFeedbacks()
+    {
+        if ($this->course->students->count() == 0) {
+            return 0;
+        }
+        if ($this->complaints->count() == 0) {
+            return 0;
+        }
+        return 100.0 / ($this->course->students->count() / $this->complaints->count());
+    }
+
+    public function isProblematic()
+    {
+        if ($this->percentageNegativeFeedbacks() > config('assessments.problematic_threshold_'.$this->course->school)) {
+            return true;
+        }
+        return false;
     }
 }

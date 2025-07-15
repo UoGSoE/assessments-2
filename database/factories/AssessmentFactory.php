@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Course;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,8 +19,8 @@ class AssessmentFactory extends Factory
      */
     public function definition(): array
     {
-        $deadline = fake()->dateTimeBetween('now', '+1 month');
-        $feedbackDeadline = fake()->dateTimeBetween($deadline, '+2 month');
+        $deadline = Carbon::now()->addDays(fake()->numberBetween(1, 14));
+        $feedbackDeadline = $deadline->addDays(config('assessments.feedback_grace_days'));
         return [
             'deadline' => $deadline,
             'type' => fake()->randomElement(['Exam 1', 'Assignment 1', 'Quiz 1']),

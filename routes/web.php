@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Auth\LdapLogin as LdapLogin;
 use App\Livewire\ImportPage;
+use App\Livewire\LoginLogPage;
 
 Route::get('/login', LdapLogin::class)->name('login');
 
@@ -45,6 +46,8 @@ Route::middleware(['auth', 'can:is-admin'])->group(function () {
     Route::post('/import/staff-courses', [ImportController::class, 'importStaffCourses'])->name('import.staff-courses.upload');
     Route::post('/import/deadlines', [ImportController::class, 'importDeadlines'])->name('import.deadlines.upload');
     Route::post('/import/submission-windows', [ImportController::class, 'importSubmissionWindows'])->name('import.submission-windows.upload');
+
+    Route::get('/login-logs', LoginLogPage::class)->name('login-logs');
 });
 
 Route::middleware(['auth'])->group(function () {

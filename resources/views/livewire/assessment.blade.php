@@ -57,10 +57,14 @@
         </form>
         @endif
         </div>
+        @if ($assessment->comment)
+            <flux:heading>Comment</flux:heading>
+            <flux:text>{{ $assessment->comment }}</flux:text>
+        @endif
     </div>
     <flux:separator class="mt-4 mb-4" />
     @can('view-complaints', $assessment)
-    <flux:heading size="xl">Complaints Left</flux:heading>
+    <flux:heading size="xl">Feedbacks Left</flux:heading>
     @foreach ($complaints as $complaint)
         <div class="mt-4">
             <flux:heading>{{ $complaint->created_at }}</flux:heading>
@@ -70,7 +74,7 @@
     @endcan
     @can('add-complaint', $assessment)
         @if ($assessment->feedback_deadline < now() && !$assessment->feedback_completed_date)
-            <flux:button icon="plus" wire:click="addComplaint" class="mt-4">Add Complaint</flux:button>
+            <flux:button icon="plus" wire:click="addComplaint" class="mt-4">Report assessment feedback is overdue</flux:button>
         @endif
     @endcan
 </div>
