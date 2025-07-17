@@ -11,11 +11,15 @@ class Home extends Component
 {
     public $assessments;
     public $user;
-    //public $yearFilter = 'all';
+    public $yearFilter = 'All years';
 
     public function mount()
     {
         $this->user = Auth::user();
+    }
+
+    public function render()
+    {
         if (Auth::user()->is_admin) {
             $this->adminAssessmentsAsArray();
         } else if (Auth::user()->is_staff) {
@@ -23,23 +27,29 @@ class Home extends Component
         } else {
             $this->studentAssessmentsAsArray();
         }
-    }
-
-    public function render()
-    {
         return view('livewire.home');
     }
     
     protected function adminAssessmentsAsArray()
     {
-        // TODO: Make more efficient by using a single query
         
         if ($this->user->school) {
             $courses = Course::where('school', $this->user->school)->get();
         } else {
             $courses = Course::all();
         }
-        
+
+        if ($this->yearFilter === '1st') {
+            $courses = $courses->where('year', 1);
+        } else if ($this->yearFilter === '2nd') {
+            $courses = $courses->where('year', 2);
+        } else if ($this->yearFilter === '3rd') {
+            $courses = $courses->where('year', 3);
+        } else if ($this->yearFilter === '4th') {
+            $courses = $courses->where('year', 4);
+        } else if ($this->yearFilter === '5th') {
+            $courses = $courses->where('year', 5);
+        }
 
         $this->assessments = Assessment::with('course')->whereIn('course_id', $courses->pluck('id'))->get()->map(function ($assessment) {
             return [
@@ -61,7 +71,21 @@ class Home extends Component
 
     protected function staffAssessmentsAsArray()
     {
-        $this->assessments = Assessment::with('course')->where('staff_id', $this->user->id)->get()->map(function ($assessment) {
+        if ($this->yearFilter === 'All years') {
+            $courses = Course::all();
+        } else if ($this->yearFilter === '1st') {
+            $courses = Course::where('year', 1)->get();
+        } else if ($this->yearFilter === '2nd') {
+            $courses = Course::where('year', 2)->get();
+        } else if ($this->yearFilter === '3rd') {
+            $courses = Course::where('year', 3)->get();
+        } else if ($this->yearFilter === '4th') {
+            $courses = Course::where('year', 4)->get();
+        } else if ($this->yearFilter === '5th') {
+            $courses = Course::where('year', 5)->get();
+        }
+        
+        $this->assessments = Assessment::with('course')->where('staff_id', $this->user->id)->whereIn('course_id', $courses->pluck('id'))->get()->map(function ($assessment) {
             return [
                 'id' => $assessment->id,
                 'title' => $assessment->course->code . ' - ' . $assessment->type,
@@ -97,11 +121,7 @@ class Home extends Component
 
     protected function studentAssessmentsAsArray()
     {
-        //if ($this->yearFilter === 'all') {
-            $courses = $this->user->coursesAsStudent()->get();
-        //} else {
-        //    $courses = $this->user->coursesAsStudent()->where('year', $this->yearFilter)->get();
-        //}
+        $courses = $this->user->coursesAsStudent()->get();
 
         $this->assessments = Assessment::with('course')->whereIn('course_id', $courses->pluck('id'))->get()->map(function ($assessment) {
             return [
@@ -119,6 +139,11 @@ class Home extends Component
                 'year' => $assessment->course->year,
             ];
         })->toArray();
+    }
+
+    public function updatedYearFilter()
+    {
+        $this->render();
     }
 
 }

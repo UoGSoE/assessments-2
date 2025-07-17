@@ -17,8 +17,6 @@ it('can be rendered', function () {
     actingAs($this->admin);
     livewire(Home::class)
         ->assertSee('Your Assessments')
-        ->assertSee('All years');
-
-        // TODO: How to test the calendar?
-        //->assertSee('June 2025');
+        ->assertSee('All years')
+        ->assertSeeInHtml('Mon');
 });

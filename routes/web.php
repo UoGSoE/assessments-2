@@ -13,7 +13,13 @@ use App\Livewire\CreateAssessment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Auth\LdapLogin as LdapLogin;
+use App\Livewire\ImportCoursePage;
+use App\Livewire\ImportDeadlinePage;
 use App\Livewire\ImportPage;
+use App\Livewire\ImportStaffAllocationPage;
+use App\Livewire\ImportStaffPage;
+use App\Livewire\ImportStudentAllocationPage;
+use App\Livewire\ImportSubmissionWindowPage;
 use App\Livewire\LoginLogPage;
 
 Route::get('/login', LdapLogin::class)->name('login');
@@ -39,9 +45,12 @@ Route::middleware(['auth', 'can:is-admin'])->group(function () {
     Route::get('/report/staff', StaffList::class)->name('staff.index');
 
     // TODO: Is this an appropriate route name?
-    Route::get('/import/{fileType}', ImportPage::class)->name('import.create');
+    Route::get('/import/courses', ImportCoursePage::class)->name('import.courses.show');
+    Route::get('/import/student-courses', ImportStudentAllocationPage::class)->name('import.student-courses.show');
+    Route::get('/import/staff-courses', ImportStaffAllocationPage::class)->name('import.staff-courses.show');
+    Route::get('/import/deadlines', ImportDeadlinePage::class)->name('import.deadlines.show');
+    Route::get('/import/submission-windows', ImportSubmissionWindowPage::class)->name('import.submission-windows.show');
     Route::post('/import/courses', [ImportController::class, 'importCourses'])->name('import.courses.upload');
-    Route::post('/import/staff', [ImportController::class, 'importStaff'])->name('import.staff.upload');
     Route::post('/import/student-courses', [ImportController::class, 'importStudentCourses'])->name('import.student-courses.upload');
     Route::post('/import/staff-courses', [ImportController::class, 'importStaffCourses'])->name('import.staff-courses.upload');
     Route::post('/import/deadlines', [ImportController::class, 'importDeadlines'])->name('import.deadlines.upload');

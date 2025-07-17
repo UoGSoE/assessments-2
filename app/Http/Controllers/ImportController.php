@@ -47,15 +47,12 @@ class ImportController extends Controller
             'importFile' => 'required|file|mimes:xlsx,xls'
         ]);
 
-        try {
-            $data = (new ExcelSheet)->trimmedImport($request->importFile->getRealPath());
-            $errors = (new Courses())->process($data);
-
-            Flux::toast('File imported successfully', variant: 'success');
-            return redirect()->route('assessment.index');
-        } catch (\Exception $e) {
-            session()->flash('error', 'Error importing file: ' . $e->getMessage());
-            return redirect()->back();
+        $data = (new ExcelSheet)->trimmedImport($request->importFile->getRealPath());
+        $errors = (new Courses())->process($data);
+        if (count($errors) > 0) {
+            return redirect()->route('import.courses.show')->withErrors($errors)->with(['message' => 'There were errors importing the file. Rows without errors have been imported.']);
+        } else {
+            return redirect()->route('import.courses.show')->with(['message' => 'File imported successfully']);
         }
     }
 
@@ -65,33 +62,28 @@ class ImportController extends Controller
             'importFile' => 'required|file|mimes:xlsx,xls'
         ]);
 
-        try {
-            $data = (new ExcelSheet)->trimmedImport($request->importFile->getRealPath());
-            $errors = (new Assessments())->process($data);
+        $data = (new ExcelSheet)->trimmedImport($request->importFile->getRealPath());
+        $errors = (new Assessments())->process($data);
 
-            Flux::toast('File imported successfully', variant: 'success');
-            return redirect()->route('assessment.index');
-        } catch (\Exception $e) {
-            session()->flash('error', 'Error importing file: ' . $e->getMessage());
-            return redirect()->back();
+        if (count($errors) > 0) {
+            return redirect()->route('import.deadlines.show')->withErrors($errors)->with(['message' => 'There were errors importing the file. Rows without errors have been imported.']);
+        } else {
+            return redirect()->route('import.deadlines.show')->with(['message' => 'File imported successfully']);
         }
     }
-
+    
     public function importStudentCourses(Request $request)
     {
         $request->validate([
             'importFile' => 'required|file|mimes:xlsx,xls'
         ]);
 
-        try {
-            $data = (new ExcelSheet)->trimmedImport($request->importFile->getRealPath());
-            $errors = (new StudentCourses())->process($data);
-
-            Flux::toast('File imported successfully', variant: 'success');
-            return redirect()->route('assessment.index');
-        } catch (\Exception $e) {
-            session()->flash('error', 'Error importing file: ' . $e->getMessage());
-            return redirect()->back();
+        $data = (new ExcelSheet)->trimmedImport($request->importFile->getRealPath());
+        $errors = (new StudentCourses())->process($data);
+        if (count($errors) > 0) {
+            return redirect()->route('import.student-courses.show')->withErrors($errors)->with(['message' => 'There were errors importing the file. Rows without errors have been imported.']);
+        } else {
+            return redirect()->route('import.student-courses.show')->with(['message' => 'File imported successfully']);
         }
     }
 
@@ -101,16 +93,14 @@ class ImportController extends Controller
             'importFile' => 'required|file|mimes:xlsx,xls'
         ]);
 
-        try {
-            $data = (new ExcelSheet)->trimmedImport($request->importFile->getRealPath());
+        $data = (new ExcelSheet)->trimmedImport($request->importFile->getRealPath());
 
-            $errors = (new StaffCourses())->process($data);
+        $errors = (new StaffCourses())->process($data);
 
-            Flux::toast('File imported successfully', variant: 'success');
-            return redirect()->route('assessment.index');
-        } catch (\Exception $e) {
-            session()->flash('error', 'Error importing file: ' . $e->getMessage());
-            return redirect()->back();
+        if (count($errors) > 0) {
+            return redirect()->route('import.staff-courses.show')->withErrors($errors)->with(['message' => 'There were errors importing the file. Rows without errors have been imported.']);
+        } else {
+            return redirect()->route('import.staff-courses.show')->with(['message' => 'File imported successfully']);
         }
     }
 
@@ -120,15 +110,13 @@ class ImportController extends Controller
             'importFile' => 'required|file|mimes:xlsx,xls'
         ]);
 
-        try {
-            $data = (new ExcelSheet)->trimmedImport($request->importFile->getRealPath());
-            $errors = (new SubmissionWindows())->process($data);
+        $data = (new ExcelSheet)->trimmedImport($request->importFile->getRealPath());
+        $errors = (new SubmissionWindows())->process($data);
 
-            Flux::toast('File imported successfully', variant: 'success');
-            return redirect()->route('assessment.index');
-        } catch (\Exception $e) {
-            session()->flash('error', 'Error importing file: ' . $e->getMessage());
-            return redirect()->back();
+        if (count($errors) > 0) {
+            return redirect()->route('import.courses.show')->withErrors($errors)->with(['message' => 'There were errors importing the file. Rows without errors have been imported.']);
+        } else {
+            return redirect()->route('import.courses.show')->with(['message' => 'File imported successfully']);
         }
     }
 }

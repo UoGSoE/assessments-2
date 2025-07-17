@@ -26,8 +26,10 @@ it('can be rendered', function () {
 
 it('is created', function () {
     $staff = User::factory()->staff()->create();
-    $course = Course::factory()->create();
+    $admin = User::factory()->admin()->create(['school' => 'ENG']);
+    $course = Course::factory()->create(['school' => 'ENG']);
 
+    actingAs($admin);
     livewire(CreateAssessment::class)
         ->set('assessment_type', 'Quiz 500')
         ->set('staff_feedback_type', 'Moodle')

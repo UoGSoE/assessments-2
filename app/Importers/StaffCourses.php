@@ -10,18 +10,31 @@ class StaffCourses
 {
     public function process($rows)
     {
+        if (strtolower($rows[0][0]) != 'forenames' || count($rows[0]) != 5) {
+            $errors[] = 'Incorrect file format - please check the file and try again.';
+            return $errors;
+        }
+
         $errors = [];
-        foreach ($rows as $row) {
+        foreach ($rows as $index => $row) {
             $row = [
+                'row_number' => $index + 1,
                 'forenames' => $row[0],
                 'surname' => $row[1],
                 'username' => $row[2],
                 'email' => $row[3],
                 'course_code' => $row[4],
             ];
-            if ($row['forenames'] == 'Forenames') {
+
+            if (strtolower($row['forenames']) == 'forenames') {
                 continue;
             }
+
+            if ($row['forenames'] == '' || $row['surname'] == '' || $row['username'] == '' || $row['email'] == '' || $row['course_code'] == '') {
+                $errors[] = 'Missing required fields in row ' . $row['row_number'];
+                continue;
+            }
+
             $course = Course::where('code', $row['course_code'])->first();
             if (!$course) {
                 $errors[] = "Course with code '{$row['course_code']}' not found - please add it to the system first.";

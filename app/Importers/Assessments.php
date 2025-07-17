@@ -12,8 +12,17 @@ class Assessments
     public function process($rows): array
     {
         $errors = [];
-        foreach ($rows as $row) {
+
+        // TODO: is this a good way to check the file format?
+        if (strtolower($rows[0][0]) != 'course code' || count($rows[0]) != 6) {
+            $errors[] = 'Incorrect file format - please check the file and try again.';
+            return $errors;
+        }
+
+        foreach ($rows as $index => $row) {
+
             $row = [
+                'row_number' => $index + 1,
                 'course_code' => $row[0],
                 'assessment_type' => $row[1],
                 'feedback_type' => $row[2],
@@ -23,6 +32,11 @@ class Assessments
             ];
 
             if (strtolower($row['course_code']) == 'course code') {
+                continue;
+            }
+
+            if ($row['course_code'] == '' || $row['assessment_type'] == '' || $row['feedback_type'] == '' || $row['email'] == '' || $row['deadline'] == '') {
+                $errors[] = 'Missing required fields in row ' . $row['row_number'];
                 continue;
             }
 
@@ -74,7 +88,6 @@ class Assessments
                     'feedback_type' => $row['feedback_type'],
                     'deadline' => $deadline,
                     'feedback_deadline' => $feedbackDeadline,
-                    // TODO: import complaints
                     'complaints' => 0,
                     'comment' => $row['comment'],
                 ]

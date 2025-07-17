@@ -12,8 +12,8 @@ use function Pest\Laravel\actingAs;
 use function Pest\Livewire\livewire;
 
 beforeEach(function () {
-    $this->admin = User::factory()->create(['is_admin' => true]);
-    $this->course = Course::factory()->create();
+    $this->admin = User::factory()->create(['is_admin' => true, 'school' => 'ENG']);
+    $this->course = Course::factory()->create(['school' => 'ENG']);
     $this->staff = User::factory()->staff()->create();
     $this->assessment = Assessment::factory()->create([
         'deadline' => '2025-12-12',
@@ -42,8 +42,9 @@ it('can be rendered', function () {
 
 it('is updated', function () {
     $new_staff = User::factory()->staff()->create();
-    $new_course = Course::factory()->create();
+    $new_course = Course::factory()->create(['school' => 'ENG']);
 
+    actingAs($this->admin);
     livewire(EditAssessment::class, ['id' => $this->assessment->id])
         ->set('assessment_type', 'Quiz 501')
         ->set('staff_feedback_type', 'Canvas')

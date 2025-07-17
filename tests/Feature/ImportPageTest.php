@@ -4,10 +4,16 @@ use App\Importers\Assessments;
 use App\Importers\Courses;
 use App\Importers\StaffCourses;
 use App\Importers\StudentCourses;
+use App\Importers\SubmissionWindows;
 use App\Livewire\Assessment as LivewireAssessment;
 use App\Livewire\Course as LivewireCourse;
 use App\Livewire\FeedbackReport;
+use App\Livewire\ImportCoursePage;
+use App\Livewire\ImportDeadlinePage;
 use App\Livewire\ImportPage;
+use App\Livewire\ImportStaffAllocationPage;
+use App\Livewire\ImportStudentAllocationPage;
+use App\Livewire\ImportSubmissionWindowPage;
 use App\Livewire\Staff;
 use App\Livewire\Student;
 use App\Models\Assessment;
@@ -30,7 +36,7 @@ describe('Import Page Rendering', function () {
     it('can render courses import page', function () {
         actingAs($this->admin);
         
-        livewire(ImportPage::class, ['fileType' => 'courses'])
+        livewire(ImportCoursePage::class)
             ->assertSee('Import Courses')
             ->assertSee('Course Title | Code | Discipline | Active (Yes/No)')
             ->assertSee('Aero Engineering | ENG4037 | Aero | Yes')
@@ -40,7 +46,7 @@ describe('Import Page Rendering', function () {
     it('can render student-courses import page', function () {
         actingAs($this->admin);
         
-        livewire(ImportPage::class, ['fileType' => 'student-courses'])
+        livewire(ImportStudentAllocationPage::class)
             ->assertSee('Import Student Course Allocations')
             ->assertSee('Please ensure all courses are uploaded to the database first.')
             ->assertSee('Forenames | Surname | GUID | Course Code')
@@ -51,7 +57,7 @@ describe('Import Page Rendering', function () {
     it('can render staff-courses import page', function () {
         actingAs($this->admin);
         
-        livewire(ImportPage::class, ['fileType' => 'staff-courses'])
+        livewire(ImportStaffAllocationPage::class)
             ->assertSee('Import Staff Course Allocations')
             ->assertSee('Please ensure all courses are uploaded to the database first.')
             ->assertSee('Forenames | Surname | GUID | Email | Course Code')
@@ -62,7 +68,7 @@ describe('Import Page Rendering', function () {
     it('can render deadlines import page', function () {
         actingAs($this->admin);
         
-        livewire(ImportPage::class, ['fileType' => 'deadlines'])
+        livewire(ImportDeadlinePage::class)
             ->assertSee('Import Deadlines')
             ->assertSee('course code | assessment type | feedback type | staff email | submission deadline | comments')
             ->assertSee('ENG4037 | Moodle Quiz | Moodle - Graded | Angela.Busse@glasgow.ac.uk | 26/06/2025 16:07 | My moodle quiz is great')
@@ -72,7 +78,7 @@ describe('Import Page Rendering', function () {
     it('can render submission-windows import page', function () {
         actingAs($this->admin);
         
-        livewire(ImportPage::class, ['fileType' => 'submission-windows'])
+        livewire(ImportSubmissionWindowPage::class)
             ->assertSee('Import Submission Windows')
             ->assertSee('course code | assessment type | feedback type | staff email | submission window from | submission window to | comments')
             ->assertSee('ENG4037 | Moodle Quiz | Moodle - Graded | Angela.Busse@glasgow.ac.uk | 26/06/2025 16:08 | 27/06/2025 16:08 | My moodle quiz is great')
@@ -149,25 +155,24 @@ describe('Import Files', function () {
             ['MATH1235', 'Essay', 'Moodle', 'tad.murray@example.com', '26/06/2025 16:07', '27/06/2025 16:07', ''],
         ];
 
+        // TODO: Fill these in after confirmation from Billy
+        //$this->invalidFileContent = [
+
     });
 
     it('imports courses', function () {
 
         expect(Course::count())->toBe(0); 
 
-        // Import using function in Courses importer
         (new Courses())->process($this->testCourseData);
 
-        // Check course counts
         expect(Course::count())->toBe(4);
 
-        // Check course info on each course
         $course = Course::where('code', '=', 'GES1235')->first();
         expect($course)->not->toBeNull();
         expect($course->title)->toBe('Geology Course');
         expect($course->code)->toBe('GES1235');
 
-        // Check course info on course page
         livewire(LivewireCourse::class, ['course' => $course])
             ->assertSee('Geology Course')
             ->assertSee('GES1235');
@@ -245,7 +250,7 @@ describe('Import Files', function () {
         livewire(LivewireAssessment::class, ['assessment' => $assessment1])
             ->assertSee('Moodle Quiz')
             ->assertSee('Moodle - Graded');
-            // Why doesn't this one work?
+            // TODO: Why doesn't this one work?
             // ->assertSee('2025-06-26 16:07');
     });
 
@@ -253,7 +258,7 @@ describe('Import Files', function () {
         expect(Assessment::count())->toBe(0);
         (new Courses())->process($this->testCourseData);
         (new StaffCourses())->process($this->testStaffCourseData);
-        (new Assessments())->process($this->testAssessmentSubmissionWindows);
+        (new SubmissionWindows())->process($this->testAssessmentSubmissionWindows);
         expect(Assessment::count())->toBe(2);
 
         $assessment1 = Assessment::where('course_id', '=', '1')->first();
@@ -271,6 +276,4 @@ describe('Import Files', function () {
             ->assertSee('Group Assignment')
             ->assertSee('Moodle - Graded');
     });
-
-    // TODO: Test delete all data functionality
 });

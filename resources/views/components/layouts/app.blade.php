@@ -63,6 +63,8 @@
     </flux:sidebar>
     <flux:main container>
         {{$slot}}
+        @include('partials.message')
+        @include('partials.errors')
     </flux:main>
     @fluxScripts
     @stack('scripts')

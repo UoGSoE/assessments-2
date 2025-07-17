@@ -15,7 +15,6 @@ class Student extends Component
 
     public function mount(User $student)
     {
-        // TODO: Clean up
         $this->student = $student;
         $this->courses = $this->student->coursesAsStudent;
         $this->assessments = Assessment::with(['course', 'staff'])

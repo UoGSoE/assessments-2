@@ -7,11 +7,13 @@ use App\Models\Complaint;
 use App\Models\Course;
 use App\Models\User;
 use Flux\Flux;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use OpenSpout\Common\Entity\Cell;
 use OpenSpout\Common\Entity\Row;
+use Livewire\Attributes\Url;
 
 class FeedbackReport extends Component
 {
@@ -21,6 +23,13 @@ class FeedbackReport extends Component
     public $searchText = '';
     public $assessments = [];
 
+    public $user;
+
+    // TODO: Does the URL need to show the query string the first time?
+    #[Url]
+    public $school;
+
+
     #[Validate('required|file|mimes:xlsx,xls')]
     public $importFile;
 
@@ -28,19 +37,53 @@ class FeedbackReport extends Component
 
     public function mount()
     {
-        $this->assessments = Assessment::with(['course', 'staff', 'complaints'])->orderBy('deadline', 'desc')->get();
+        $this->user = Auth::user();
+        if ($this->user->school) {
+            $this->school = $this->user->school;
+            $courses = Course::where('school', $this->school)->get();
+            $this->assessments = Assessment::with(['course', 'staff', 'complaints'])->whereIn('course_id', $courses->pluck('id'))->orderBy('deadline', 'desc')->get();
+        } else {
+            $this->school = 'All schools';
+            $this->assessments = Assessment::with(['course', 'staff', 'complaints'])->orderBy('deadline', 'desc')->get();
+        }
+
     }
 
     public function updatedSearchText($value)
     {
-        // TODO: Make it so it searches more than just the course code
         $this->reset('assessments');
         $searchTerm = $value;
+        
         $courses = Course::where('code', 'like', '%' . $searchTerm . '%')->get();
-        if ($courses->count() > 0) {
-            $this->assessments = Assessment::with(['course', 'staff', 'complaints'])->whereIn('course_id', $courses->pluck('id'))->get();
+        $courseIds = $courses->pluck('id');
+        
+        $staff = User::where('is_staff', true)
+            ->where(function($query) use ($searchTerm) {
+                $query->where('surname', 'like', '%' . $searchTerm . '%')
+                      ->orWhere('forenames', 'like', '%' . $searchTerm . '%');
+            })->get();
+        $staffIds = $staff->pluck('id');
+        
+        $assessments = Assessment::with(['course', 'staff', 'complaints'])
+            ->where(function($query) use ($searchTerm, $courseIds, $staffIds) {
+                $query->whereIn('course_id', $courseIds)
+                      ->orWhereIn('staff_id', $staffIds)
+                      ->orWhere('type', 'like', '%' . $searchTerm . '%');
+            })
+            ->orderBy('deadline', 'desc')
+            ->get();
+            
+        $this->assessments = $assessments;
+    }
+
+    public function updatedSchool($value)
+    {
+        $this->reset('assessments');
+        if ($this->school == 'All schools') {
+            $this->assessments = Assessment::with(['course', 'staff', 'complaints'])->orderBy('deadline', 'desc')->get();
         } else {
-            $this->assessments = collect();
+            $courses = Course::where('school', $this->school)->get();
+            $this->assessments = Assessment::with(['course', 'staff', 'complaints'])->whereIn('course_id', $courses->pluck('id'))->orderBy('deadline', 'desc')->get();
         }
     }
 

@@ -15,16 +15,30 @@ class StudentCourses
     public function process($rows): array
     {
         $errors = [];
-        foreach ($rows as $row) {
+
+        if (strtolower($rows[0][0]) != 'forenames' || count($rows[0]) != 4) {
+            $errors[] = 'Incorrect file format - please check the file and try again.';
+            return $errors;
+        }
+
+        foreach ($rows as $index => $row) {
             $row = [
+                'row_number' => $index + 1,
                 'forenames' => $row[0],
                 'surname' => $row[1],
                 'username' => $row[2],
                 'course' => $row[3],
             ];
-            if ($row['forenames'] == 'Forenames') {
+
+            if (strtolower($row['forenames']) == 'forenames') {
                 continue;
             }
+
+            if ($row['forenames'] == '' || $row['surname'] == '' || $row['username'] == '' || $row['course'] == '') {
+                $errors[] = 'Missing required fields in row ' . $row['row_number'];
+                continue;
+            }
+
             $course = Course::where('code', $row['course'])->first();
             if (!$course) {
                 $errors[] = "Course with code '{$row['course']}' not found - please add it to the system first.";

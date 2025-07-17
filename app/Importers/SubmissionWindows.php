@@ -15,8 +15,16 @@ class SubmissionWindows
     public function process($rows): array
     {
         $errors = [];
-        foreach ($rows as $row) {
+        
+        if (strtolower($rows[0][0]) != 'course code' || count($rows[0]) != 7) {
+            $errors[] = 'Incorrect file format - please check the file and try again.';
+            return $errors;
+        }
+
+        foreach ($rows as $index => $row) {
+            
             $row = [
+                'row_number' => $index + 1,
                 'course_code' => $row[0],
                 'assessment_type' => $row[1],
                 'feedback_type' => $row[2],
@@ -30,6 +38,10 @@ class SubmissionWindows
                 continue;
             }
 
+            if ($row['course_code'] == '' || $row['assessment_type'] == '' || $row['feedback_type'] == '' || $row['email'] == '' || $row['submission_window_start'] == '' || $row['submission_window_end'] == '') {
+                $errors[] = 'Missing required fields in row ' . $row['row_number'];
+                continue;
+            }
 
             $course = Course::where('code', $row['course_code'])->first();
             if (!$course) {
@@ -44,33 +56,37 @@ class SubmissionWindows
             }
 
             $start = $row['submission_window_start'];
+            
             $end = $row['submission_window_end'];
 
             if ($start != '') {
                 try {
+                    
                     if (!$start instanceof \DateTime) {
-                        $start = Carbon::createFromFormat('d/m/Y', $start);
-
+                        
+                        $start = Carbon::createFromFormat('d/m/Y H:i', $start);
+                        
 
                         if (strpos($row['submission_window_start'], ':') === false) {
 
                             $start->setTime(16, 0, 0);
                         }
+                        
                     } else {
                         $start = $start;
                     }
+                    
                 } catch (\Exception $e) {
-                    dd($start);
+                    
                     $errors[] = "Invalid date format for 'Submission Deadline' for deadline '{$row['submission_window_start']}'.";
-
+                    
                     continue;
                 }
             }
-
             if ($end != '') {
                 try {
                     if (!$end instanceof \DateTime) {
-                        $end = Carbon::createFromFormat('d/m/Y', $end);
+                        $end = Carbon::createFromFormat('d/m/Y H:i', $end);
 
 
                         if (strpos($row['submission_window_end'], ':') === false) {
@@ -81,7 +97,6 @@ class SubmissionWindows
                         $end = $end;
                     }
                 } catch (\Exception $e) {
-                    dd($end);
                     $errors[] = "Invalid date format for 'Submission Deadline' for deadline '{$row['submission_window_end']}'.";
 
                     continue;
@@ -102,7 +117,6 @@ class SubmissionWindows
                     'submission_window_start' => $start,
                     'submission_window_end' => $end,
                     'feedback_deadline' => $feedbackDeadline,
-                    // TODO: import complaints
                     'complaints' => 0,
                     'comment' => $row['comment'],
                 ]

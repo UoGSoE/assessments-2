@@ -11,10 +11,11 @@ use function Pest\Laravel\actingAs;
 use function Pest\Livewire\livewire;
 
 beforeEach(function () {
-    $this->admin = User::factory()->create(['is_admin' => true]);
+    $this->admin = User::factory()->create(['is_admin' => true, 'school' => 'ENG']);
 });
 
 it('can be rendered', function () {
+    actingAs($this->admin);
     livewire(FeedbackReport::class)
         ->assertSee('Feedback Report')
         ->assertSee('Search')
@@ -23,9 +24,9 @@ it('can be rendered', function () {
 
 
 it('displays assessment details', function () {
-    $assessment1 = Assessment::factory()->create(['staff_id' => User::factory()->staff()->create()->id, 'course_id' => ModelsCourse::factory()->create()->id]);
-    $assessment2 = Assessment::factory()->create(['staff_id' => User::factory()->staff()->create()->id, 'course_id' => ModelsCourse::factory()->create()->id]);
-    $assessment3 = Assessment::factory()->create(['staff_id' => User::factory()->staff()->create()->id, 'course_id' => ModelsCourse::factory()->create()->id]);
+    $assessment1 = Assessment::factory()->create(['staff_id' => User::factory()->staff()->create()->id, 'course_id' => ModelsCourse::factory()->create(['school' => 'ENG'])->id]);
+    $assessment2 = Assessment::factory()->create(['staff_id' => User::factory()->staff()->create()->id, 'course_id' => ModelsCourse::factory()->create(['school' => 'ENG'])->id]);
+    $assessment3 = Assessment::factory()->create(['staff_id' => User::factory()->staff()->create()->id, 'course_id' => ModelsCourse::factory()->create(['school' => 'ENG'])->id]);
 
     actingAs($this->admin);
     livewire(FeedbackReport::class)
@@ -112,13 +113,14 @@ describe('showing all forms of data and deleting them', function () {
 });
 
 it('searches for an assessment', function () {
-    $course1 = ModelsCourse::factory()->create(['code' => 'TEST123']);
-    $course2 = ModelsCourse::factory()->create(['code' => 'TEST456']);
-    $course3 = ModelsCourse::factory()->create(['code' => 'TEST789']);
+    $course1 = ModelsCourse::factory()->create(['code' => 'TEST123', 'school' => 'ENG']);
+    $course2 = ModelsCourse::factory()->create(['code' => 'TEST456', 'school' => 'ENG']);
+    $course3 = ModelsCourse::factory()->create(['code' => 'TEST789', 'school' => 'ENG']);
     $assessment1 = Assessment::factory()->create(['course_id' => $course1->id, 'type' => 'Exam']);
     $assessment2 = Assessment::factory()->create(['course_id' => $course2->id, 'type' => 'Quiz']);
     $assessment3 = Assessment::factory()->create(['course_id' => $course3->id, 'type' => 'Essay']);
 
+    actingAs($this->admin);
     livewire(FeedbackReport::class)
         ->assertSee($assessment1->type)
         ->assertSee($assessment2->type)

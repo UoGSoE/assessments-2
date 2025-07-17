@@ -13,14 +13,14 @@
                     <flux:menu.item icon="arrow-down-tray" wire:click="exportAsExcel">Export as Excel</flux:menu.item>
                     <flux:menu.item icon="user"><a href="{{ route('staff.index') }}">Staff Report</a></flux:menu.item>
                     <flux:menu.separator />
-                    <a href="{{ route('import.create', ['fileType' => 'courses']) }}"><flux:menu.item icon="arrow-up-tray">1. Import courses</flux:menu.item></a>
+                    <a href="{{ route('import.courses.show') }}"><flux:menu.item icon="arrow-up-tray">1. Import courses</flux:menu.item></a>
                     <flux:modal.trigger name="removeAllStudentCoursesModal">
                         <flux:menu.item icon="arrow-up-tray">2. Remove all students' courses</flux:menu.item>
                     </flux:modal.trigger>
-                    <a href="{{ route('import.create', ['fileType' => 'student-courses']) }}"><flux:menu.item icon="arrow-up-tray">3. Import student allocations</flux:menu.item></a>
-                    <a href="{{ route('import.create', ['fileType' => 'staff-courses']) }}"><flux:menu.item icon="arrow-up-tray">4. Import staff allocations</flux:menu.item></a>
-                    <a href="{{ route('import.create', ['fileType' => 'deadlines']) }}"><flux:menu.item icon="arrow-up-tray">5. Import deadlines</flux:menu.item></a>
-                    <a href="{{ route('import.create', ['fileType' => 'submission-windows']) }}"><flux:menu.item icon="arrow-up-tray">6. Import submission windows</flux:menu.item></a>
+                    <a href="{{ route('import.student-courses.show') }}"><flux:menu.item icon="arrow-up-tray">3. Import student allocations</flux:menu.item></a>
+                    <a href="{{ route('import.staff-courses.show') }}"><flux:menu.item icon="arrow-up-tray">4. Import staff allocations</flux:menu.item></a>
+                    <a href="{{ route('import.deadlines.show') }}"><flux:menu.item icon="arrow-up-tray">5. Import deadlines</flux:menu.item></a>
+                    <a href="{{ route('import.submission-windows.show') }}"><flux:menu.item icon="arrow-up-tray">6. Import submission windows</flux:menu.item></a>
                     <flux:menu.separator />
                     <a href="{{ route('login-logs') }}"><flux:menu.item icon="list-bullet">Login logs</flux:menu.item></a>
                 </flux:menu>
@@ -32,6 +32,17 @@
         <flux:text class="mr-2">Search</flux:text>
         <flux:input wire:model.live.debounce="searchText" size="sm" class="w-full flex-1" />
     </div>
+
+    <flux:select wire:model.live="school" class="mt-4">
+        <flux:select.option>All schools</flux:select.option>
+        <flux:select.option>ENG</flux:select.option>
+        <flux:select.option>PHAS</flux:select.option>
+        <flux:select.option>MATH</flux:select.option>
+        <flux:select.option>CHEM</flux:select.option>
+        <flux:select.option>GES</flux:select.option>
+        <flux:select.option>COMP</flux:select.option>
+    </flux:select>
+
     
     @if ($assessments->count() > 0)
     <flux:table class="table-fixed">
