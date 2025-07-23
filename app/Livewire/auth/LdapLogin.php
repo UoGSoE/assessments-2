@@ -23,20 +23,17 @@ class LdapLogin extends Component
         return view('livewire.auth.ldap-login');
     }
 
-    public function isStudent($username)
+    public function isStaff($username)
     {
-        return preg_match('/^[0-9]/', $username);
+        return preg_match('/^[a-zA-Z]+[0-9]+[a-zA-Z]+$/', $username);
     }
 
     public function login()
     {
         $this->validate([
-            // TODO: Fix regex validation
-            //'username' => 'required|regex:/^[a-zA-Z]+[0-9]+[a-zA-Z]+$/|[0-9]{7}[a-zA-Z]',  // matches either staff guid or 7 numbers + letter
-            'username' => 'required',
+            'username' => ['required', 'regex:/^[a-zA-Z]+[0-9]+[a-zA-Z]+$|[0-9]{7}[a-zA-Z]/'],
             'password' => 'required',
         ]);
-
 
         $this->error = '';
 
@@ -80,7 +77,7 @@ class LdapLogin extends Component
                     'surname' => $ldapUser->surname,
                     'forenames' => $ldapUser->forenames,
                     'is_admin' => false,
-                    'is_student' => $this->isStudent($this->username),
+                    'is_staff' => $this->isStaff($this->username),
                 ]
             );
         }
@@ -96,6 +93,7 @@ class LdapLogin extends Component
                 return;
             }
         }
+
         Auth::login($localUser, $this->remember);
         if ($localUser->is_admin) {
             $userType = 'admin';

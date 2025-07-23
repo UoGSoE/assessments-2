@@ -1,0 +1,30 @@
+// In your Livewire component blade template
+<div x-data="calendarComponent()" x-init="initCalendar()" wire:ignore>
+    <div id="calendar"></div>
+</div>
+
+<script>
+function calendarComponent() {
+    return {
+        calendar: null,
+        assessments: $wire.entangle('assessments'),
+        
+        initCalendar() {
+            this.calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+                initialView: 'dayGridMonth',
+                events: this.assessments,
+                // your other calendar options here
+            });
+            
+            this.calendar.render();
+            
+            // Watch for changes to assessments and refresh calendar
+            this.$watch('assessments', () => {
+                if (this.calendar) {
+                    this.calendar.refetchEvents();
+                }
+            });
+        }
+    }
+}
+</script>

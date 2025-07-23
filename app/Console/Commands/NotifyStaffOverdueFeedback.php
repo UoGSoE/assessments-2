@@ -16,13 +16,12 @@ class NotifyStaffOverdueFeedback extends Command
 
     public function handle()
     {
-        // TODO: Can this query be optimised?
         $staff = User::where('is_staff', true)->get();
         foreach ($staff as $staffMember) {
-            $complaints = Complaint::where('staff_id', $staffMember->id)->get();
+            $complaints = Complaint::where('staff_id', $staffMember->id)->where('staff_notified', false)->get();
             if ($complaints->count() > 0) {
-                //Mail::to($staffMember->email)->send(new OverdueFeedback($complaints));
-                $this->info("Would send email to {$staffMember->email} with {$complaints->count()} complaints");
+                Mail::to($staffMember->email)->send(new OverdueFeedback($complaints));
+                $this->info("Email sent to {$staffMember->email} with {$complaints->count()} complaints");
             }
             foreach ($complaints as $complaint) {
                 $complaint->staff_notified = true;

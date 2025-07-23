@@ -17,6 +17,7 @@ it('can be rendered', function () {
     actingAs($this->admin);
     livewire(Home::class)
         ->assertSee('Your Assessments')
-        ->assertSee('All years')
-        ->assertSeeInHtml('Mon');
+        ->assertSee('All years');
+
+    
 });

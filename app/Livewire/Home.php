@@ -143,7 +143,7 @@ class Home extends Component
 
     public function updatedYearFilter()
     {
-        $this->render();
+        $this->dispatch('refresh-calendar');
     }
 
 }

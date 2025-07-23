@@ -9,8 +9,6 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 
-use function Pest\Laravel\actingAs;
-
 it('contains staff email content', function () {
     $staff = User::factory()->staff()->create();
     $complaints = Complaint::factory()->count(3)->create(['staff_id' => $staff->id]);
@@ -56,13 +54,40 @@ it('correctly identifies problematic assessments', function () {
     expect($assessment->isProblematic())->toBeTrue();
 });
 
-it('sends office email', function () {
+it('can send office email', function () {
     Mail::fake();
     $assessment = Assessment::factory()->create();
     $email = new ProblematicAssessment($assessment);
     Mail::to(config('assessments.office_email'))->send($email);
 
     Mail::assertSent(ProblematicAssessment::class);
+});
+
+it('sends office mail when problematic assessments exist', function () {
+    Mail::fake();
+    $course = Course::factory()->create();
+    $student1 = User::factory()->create();
+    $student2 = User::factory()->create();
+    $student3 = User::factory()->create();
+    $assessment = Assessment::factory()->create(['course_id' => $course->id]);
+    $course->students()->attach([$student1->id, $student2->id, $student3->id]);
+    $complaint1 = Complaint::factory()->create(['student_id' => $student1->id, 'assessment_id' => $assessment->id]);
+    $complaint2 = Complaint::factory()->create(['student_id' => $student2->id, 'assessment_id' => $assessment->id]);
+    $complaint3 = Complaint::factory()->create(['student_id' => $student3->id, 'assessment_id' => $assessment->id]);
+    expect($assessment->isProblematic())->toBeTrue();
+
+    $this->artisan('assessments:notify-office-overdue-feedback');
+
+    Mail::assertSent(ProblematicAssessment::class);
+});
+
+it('sends staff email when complaints exist', function () {
+    Mail::fake();
+    $staff = User::factory()->staff()->create();
+    $complaints = Complaint::factory()->count(3)->create(['staff_id' => $staff->id]);
+    $this->artisan('assessments:notify-staff-overdue-feedback');
+
+    Mail::assertSent(OverdueFeedback::class);
 });
 
 // TODO: test that commands work

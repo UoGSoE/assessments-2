@@ -267,7 +267,6 @@ describe('Import Files', function () {
         expect($assessment1->course->title)->toBe('Geology Course');
         expect($assessment1->type)->toBe('Group Assignment');
         expect($assessment1->feedback_type)->toBe('Moodle - Graded');
-        // TODO: Test submission windows
 
         actingAs($this->admin);
         livewire(FeedbackReport::class)->assertSee('Group Assignment');
@@ -275,5 +274,14 @@ describe('Import Files', function () {
         livewire(LivewireAssessment::class, ['assessment' => $assessment1])
             ->assertSee('Group Assignment')
             ->assertSee('Moodle - Graded');
+    });
+
+    it('does not import files with wrong format', function () {
+        (new Courses())->process($this->testAssessmentDeadlines);
+        expect(Course::count())->toBe(0);
+    });
+
+    it('shows error message when file is incorrect', function () {
+        // TODO: complete tests for error messages
     });
 });

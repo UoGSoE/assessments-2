@@ -17,16 +17,15 @@ class NotifyOfficeOverdueFeedback extends Command
 
     public function handle()
     {
-        // TODO: Can this query be optimised?
         $count = 0;
         foreach (Assessment::all() as $assessment) {
             if ($assessment->isProblematic() && !$assessment->office_notified) {
-                //Mail::to(config('assessments.office_email'))->send(new ProblematicAssessment($assessment));
-                $this->info("Would send email to office with {$assessment->course->code} {{$assessment->type}} (feedback due {$assessment->feedback_deadline->format('d/m/Y')})");
+                Mail::to(config('assessments.office_email'))->send(new ProblematicAssessment($assessment));
+                $this->info("Email sent to office with {$assessment->course->code} {{$assessment->type}} (feedback due {$assessment->feedback_deadline->format('d/m/Y')})");
                 $assessment->office_notified = true;
                 $count++;
             }
         }
-        $this->info("Finished checking assessments. {$count} assessments would be sent to office.");
+        $this->info("Finished checking assessments. {$count} assessments sent to office.");
     }
 }

@@ -41,7 +41,7 @@ class EditAssessment extends Component
         $this->deadline = $this->assessment->deadline;
         $this->feedback_deadline = $this->assessment->feedback_deadline;
         $this->comment = $this->assessment->comment;
-        $this->staff = User::where('is_student', false)->get();
+        $this->staff = User::where('is_staff', true)->get();
         $this->courses = Course::all();
     }
 
