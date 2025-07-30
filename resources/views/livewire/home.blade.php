@@ -4,12 +4,12 @@
 
     </div>
     <flux:select class="mb-4" wire:model.live="yearFilter">
-        <flux:select.option>All years</flux:select.option>
-        <flux:select.option>1st</flux:select.option>
-        <flux:select.option>2nd</flux:select.option>
-        <flux:select.option>3rd</flux:select.option>
-        <flux:select.option>4th</flux:select.option>
-        <flux:select.option>5th</flux:select.option>
+        <flux:select.option value="all">All years</flux:select.option>
+        <flux:select.option value="1">1st</flux:select.option>
+        <flux:select.option value="2">2nd</flux:select.option>
+        <flux:select.option value="3">3rd</flux:select.option>
+        <flux:select.option value="4">4th</flux:select.option>
+        <flux:select.option value="5">5th</flux:select.option>
     </flux:select>
     <div wire:ignore>
         <div id='calendar'></div>
@@ -21,7 +21,6 @@
         initCalendar() {
     
             const calendarEl = document.getElementById('calendar');
-            console.log('Calendar element:', calendarEl);
     
             this.calendar = new window.FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',

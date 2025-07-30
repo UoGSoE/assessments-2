@@ -67,6 +67,10 @@ class ImportController extends Controller
 
     public function import(Request $request, $type)
     {
+        if (! array_key_exists($type, $this->importers)) {
+            abort(404);
+        }
+        
         $request->validate([
             'importFile' => 'required|file|mimes:xlsx,xls'
         ]);

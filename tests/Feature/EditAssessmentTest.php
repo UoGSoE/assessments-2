@@ -39,7 +39,6 @@ it('can be rendered', function () {
         ->assertSee('Update');
 });
 
-
 it('is updated', function () {
     $new_staff = User::factory()->staff()->create();
     $new_course = Course::factory()->create(['school' => 'ENG']);
@@ -72,7 +71,6 @@ it('validates the form', function () {
         ->call('updateAssessment')
         ->assertHasErrors(['assessment_type', 'staff_feedback_type', 'staff_id', 'course_id', 'deadline', 'feedback_deadline']);
 });
-
 
 it('only allows admins to edit assessments', function () {
     $random_student = User::factory()->create();

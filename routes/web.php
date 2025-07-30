@@ -30,7 +30,7 @@ Route::post('/logout', function () {
 })->name('logout');
 
 
-
+// TODO: put admin middleware inside auth one
 Route::middleware(['auth', 'can:is-admin'])->group(function () {
     Route::get('/report/feedback', FeedbackReport::class)->name('assessment.index');
 

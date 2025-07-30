@@ -27,5 +27,13 @@ class Course extends Model
     {
         return $this->belongsToMany(User::class, 'course_staff', 'course_id', 'staff_id');
     }
-    
+
+    public function scopeForYear($query, $year)
+    {
+        if (! is_numeric($year)) {
+            return $query;
+        }
+
+        return $query->where('year', $year);
+    }
 }
