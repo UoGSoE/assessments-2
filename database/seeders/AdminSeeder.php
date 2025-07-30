@@ -14,5 +14,8 @@ class AdminSeeder extends Seeder
     public function run(): void
     {
         User::factory()->admin()->create(['school' => 'ENG']);
+        User::factory()->staff()->create(['school' => 'ENG']);
+        User::factory()->create(['school' => 'ENG']);
     }
+
 }

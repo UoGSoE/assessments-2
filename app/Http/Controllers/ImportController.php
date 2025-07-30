@@ -13,8 +13,32 @@ use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Ohffs\SimpleSpout\ExcelSheet;
 use Livewire\WithFileUploads;
+
 class ImportController extends Controller
 {
+    private $importers = [
+        'courses' => [
+            'importer' => Courses::class,
+            'route' => 'import.courses.show'
+        ],
+        'deadlines' => [
+            'importer' => Assessments::class,
+            'route' => 'import.deadlines.show'
+        ],
+        'student-courses' => [
+            'importer' => StudentCourses::class,
+            'route' => 'import.student-courses.show'
+        ],
+        'staff-courses' => [
+            'importer' => StaffCourses::class,
+            'route' => 'import.staff-courses.show'
+        ],
+        'submission-windows' => [
+            'importer' => SubmissionWindows::class,
+            'route' => 'import.submission-windows.show'
+        ]
+    ];
+
     public function codeToSchool($code)
     {
         $school = substr($code, 0, 3);
@@ -41,82 +65,24 @@ class ImportController extends Controller
         return $year;
     }
 
-    public function importCourses(Request $request)
+    public function import(Request $request, $type)
     {
         $request->validate([
             'importFile' => 'required|file|mimes:xlsx,xls'
         ]);
 
-        $data = (new ExcelSheet)->trimmedImport($request->importFile->getRealPath());
-        $errors = (new Courses())->process($data);
-        if (count($errors) > 0) {
-            return redirect()->route('import.courses.show')->withErrors($errors)->with(['message' => 'There were errors importing the file. Rows without errors have been imported.']);
-        } else {
-            return redirect()->route('import.courses.show')->with(['message' => 'File imported successfully']);
-        }
-    }
-
-    public function importDeadlines(Request $request)
-    {
-        $request->validate([
-            'importFile' => 'required|file|mimes:xlsx,xls'
-        ]);
+        $config = $this->importers[$type];
 
         $data = (new ExcelSheet)->trimmedImport($request->importFile->getRealPath());
-        $errors = (new Assessments())->process($data);
+        $errors = (new $config['importer']())->process($data);
 
         if (count($errors) > 0) {
-            return redirect()->route('import.deadlines.show')->withErrors($errors)->with(['message' => 'There were errors importing the file. Rows without errors have been imported.']);
+            return redirect()->route($config['route'])
+                ->withErrors($errors)
+                ->with(['message' => 'There were errors importing the file. Rows without errors have been imported.']);
         } else {
-            return redirect()->route('import.deadlines.show')->with(['message' => 'File imported successfully']);
-        }
-    }
-    
-    public function importStudentCourses(Request $request)
-    {
-        $request->validate([
-            'importFile' => 'required|file|mimes:xlsx,xls'
-        ]);
-
-        $data = (new ExcelSheet)->trimmedImport($request->importFile->getRealPath());
-        $errors = (new StudentCourses())->process($data);
-        if (count($errors) > 0) {
-            return redirect()->route('import.student-courses.show')->withErrors($errors)->with(['message' => 'There were errors importing the file. Rows without errors have been imported.']);
-        } else {
-            return redirect()->route('import.student-courses.show')->with(['message' => 'File imported successfully']);
-        }
-    }
-
-    public function importStaffCourses(Request $request)
-    {
-        $request->validate([
-            'importFile' => 'required|file|mimes:xlsx,xls'
-        ]);
-
-        $data = (new ExcelSheet)->trimmedImport($request->importFile->getRealPath());
-
-        $errors = (new StaffCourses())->process($data);
-
-        if (count($errors) > 0) {
-            return redirect()->route('import.staff-courses.show')->withErrors($errors)->with(['message' => 'There were errors importing the file. Rows without errors have been imported.']);
-        } else {
-            return redirect()->route('import.staff-courses.show')->with(['message' => 'File imported successfully']);
-        }
-    }
-
-    public function importSubmissionWindows(Request $request)
-    {
-        $request->validate([
-            'importFile' => 'required|file|mimes:xlsx,xls'
-        ]);
-
-        $data = (new ExcelSheet)->trimmedImport($request->importFile->getRealPath());
-        $errors = (new SubmissionWindows())->process($data);
-
-        if (count($errors) > 0) {
-            return redirect()->route('import.courses.show')->withErrors($errors)->with(['message' => 'There were errors importing the file. Rows without errors have been imported.']);
-        } else {
-            return redirect()->route('import.courses.show')->with(['message' => 'File imported successfully']);
+            return redirect()->route($config['route'])
+                ->with(['message' => 'File imported successfully']);
         }
     }
 }

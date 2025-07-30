@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class LoginLog extends Model
 {
-    /** @use HasFactory<\Database\Factories\LoginLogFactory> */
     use HasFactory;
 
     protected $fillable = ['user_id', 'user_type'];

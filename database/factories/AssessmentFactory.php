@@ -20,7 +20,8 @@ class AssessmentFactory extends Factory
     public function definition(): array
     {
         $deadline = Carbon::now()->addDays(fake()->numberBetween(1, 14));
-        $feedbackDeadline = $deadline->addDays(config('assessments.feedback_grace_days'));
+        $feedbackDeadline = $deadline->copy();
+        $feedbackDeadline->addDays(config('assessments.feedback_grace_days'));
         return [
             'deadline' => $deadline,
             'type' => fake()->randomElement(['Exam 1', 'Assignment 1', 'Quiz 1']),

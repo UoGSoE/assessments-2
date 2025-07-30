@@ -15,9 +15,11 @@
         "vite": "^6.2.4"
     },
     "dependencies": {
-        "@fullcalendar/core": "^6.1.17",
-        "@fullcalendar/daygrid": "^6.1.17",
+        "@fullcalendar/core": "^6.1.18",
+        "@fullcalendar/daygrid": "^6.1.18",
         "@fullcalendar/list": "^6.1.17",
+        "@fullcalendar/resource": "^6.1.18",
+        "@fullcalendar/resource-timeline": "^6.1.18",
         "@fullcalendar/timegrid": "^6.1.17",
         "fullcalendar": "^6.1.17"
     }

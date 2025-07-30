@@ -44,17 +44,14 @@ Route::middleware(['auth', 'can:is-admin'])->group(function () {
 
     Route::get('/report/staff', StaffList::class)->name('staff.index');
 
-    // TODO: Is this an appropriate route name?
     Route::get('/import/courses', ImportCoursePage::class)->name('import.courses.show');
     Route::get('/import/student-courses', ImportStudentAllocationPage::class)->name('import.student-courses.show');
     Route::get('/import/staff-courses', ImportStaffAllocationPage::class)->name('import.staff-courses.show');
     Route::get('/import/deadlines', ImportDeadlinePage::class)->name('import.deadlines.show');
     Route::get('/import/submission-windows', ImportSubmissionWindowPage::class)->name('import.submission-windows.show');
-    Route::post('/import/courses', [ImportController::class, 'importCourses'])->name('import.courses.upload');
-    Route::post('/import/student-courses', [ImportController::class, 'importStudentCourses'])->name('import.student-courses.upload');
-    Route::post('/import/staff-courses', [ImportController::class, 'importStaffCourses'])->name('import.staff-courses.upload');
-    Route::post('/import/deadlines', [ImportController::class, 'importDeadlines'])->name('import.deadlines.upload');
-    Route::post('/import/submission-windows', [ImportController::class, 'importSubmissionWindows'])->name('import.submission-windows.upload');
+    Route::post('/import/{type}', [ImportController::class, 'import'])
+        ->where('type', 'courses|student-courses|staff-courses|deadlines|submission-windows')
+        ->name('import.upload');
 
     Route::get('/login-logs', LoginLogPage::class)->name('login-logs');
 });

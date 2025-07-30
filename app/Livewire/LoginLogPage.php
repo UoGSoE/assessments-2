@@ -3,7 +3,6 @@
 namespace App\Livewire;
 
 use App\Models\LoginLog;
-use App\Models\User;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -28,6 +27,11 @@ class LoginLogPage extends Component
         $this->loadLoginLogs();
     }
 
+    public function render()
+    {
+        return view('livewire.login-log-page');
+    }
+
     public function updatedMinDate()
     {
         $this->resetPage();
@@ -44,6 +48,16 @@ class LoginLogPage extends Component
     {
         $this->resetPage();
         $this->loadLoginLogs();
+    }
+
+    public function updatedSearchText($value)
+    {
+        $this->reset('loginLogs');
+        $searchTerm = $value;
+        $this->loginLogs = LoginLog::whereHas('user', function ($userQuery) use ($searchTerm) {
+            $userQuery->where('surname', 'like', '%' . $searchTerm . '%')
+                     ->orWhere('forenames', 'like', '%' . $searchTerm . '%');
+        })->orderBy('created_at', 'desc')->get();
     }
 
     public function clearFilters()
@@ -76,18 +90,4 @@ class LoginLogPage extends Component
         $this->loginLogs = $query->orderBy('created_at', 'desc')->get();
     }
 
-    public function render()
-    {
-        return view('livewire.login-log-page');
-    }
-
-    public function updatedSearchText($value)
-    {
-        $this->reset('loginLogs');
-        $searchTerm = $value;
-        $this->loginLogs = LoginLog::whereHas('user', function ($userQuery) use ($searchTerm) {
-            $userQuery->where('surname', 'like', '%' . $searchTerm . '%')
-                     ->orWhere('forenames', 'like', '%' . $searchTerm . '%');
-        })->orderBy('created_at', 'desc')->get();
-    }
 }

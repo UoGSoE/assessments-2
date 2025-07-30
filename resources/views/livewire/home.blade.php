@@ -1,7 +1,7 @@
 <div>
     <div class="flex items-baseline gap-4 justify-start">
         <flux:heading size="xl" class="mb-4 flex-1">Your Assessments</flux:heading>
-        
+
     </div>
     <flux:select class="mb-4" wire:model.live="yearFilter">
         <flux:select.option>All years</flux:select.option>
@@ -14,37 +14,38 @@
     <div wire:ignore>
         <div id='calendar'></div>
     </div>
-
-<div
-    x-data="{
+    <div x-init="init()" x-data="{
         calendar: null,
         events: $wire.entangle('assessments'),
-        
+    
         initCalendar() {
-            this.calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+    
+            const calendarEl = document.getElementById('calendar');
+            console.log('Calendar element:', calendarEl);
+    
+            this.calendar = new window.FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
+                plugins: [window.FullCalendar.dayGridPlugin],
                 events: this.events,
-                // your other calendar options here
+                displayEventTime: false,
+                eventDisplay: 'block',
+                height: 'auto'
             });
-            
+    
             this.calendar.render();
-            
-            // Watch for changes to assessments and refresh calendar
+    
             this.$watch('events', () => {
-                this.calendar.destroy();
+                if (this.calendar) {
+                    this.calendar.destroy();
+                }
                 this.initCalendar();
             });
         },
         init() {
-            this.initCalendar();
+            this.$nextTick(() => {
+                this.initCalendar();
+            });
         }
-    }"
->
+    }">
+    </div>
 </div>
-</div>
-
-@assets
-<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js'></script>
-@endassets
-
-

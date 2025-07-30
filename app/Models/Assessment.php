@@ -10,11 +10,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Auth;
 
 class Assessment extends Model
 {
-    /** @use HasFactory<\Database\Factories\AssessmentFactory> */
     use HasFactory;
 
     protected $fillable = ['type', 'course_id', 'staff_id', 'deadline', 'submission_window_start', 'submission_window_end', 'feedback_type', 'feedback_deadline', 'feedback_completed_date', 'comment', 'office_notified'];

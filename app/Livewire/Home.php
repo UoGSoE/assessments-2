@@ -71,6 +71,7 @@ class Home extends Component
 
     protected function staffAssessmentsAsArray()
     {
+        
         if ($this->yearFilter === 'All years') {
             $courses = Course::all();
         } else if ($this->yearFilter === '1st') {
@@ -101,6 +102,7 @@ class Home extends Component
                 'year' => $assessment->course->year,
             ];
         })->toArray();
+
         $feedbackDeadlines = Assessment::with('course')->where('staff_id', $this->user->id)->where('feedback_completed_date', null)->get()->map(function ($assessment) {
             return [
                 'id' => $assessment->id,
@@ -116,6 +118,7 @@ class Home extends Component
                 'year' => $assessment->course->year,
             ];
         })->toArray();
+
         $this->assessments = array_merge($this->assessments, $feedbackDeadlines);
     }
 

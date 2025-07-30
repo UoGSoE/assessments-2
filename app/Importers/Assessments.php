@@ -35,8 +35,28 @@ class Assessments
                 continue;
             }
 
-            if ($row['course_code'] == '' || $row['assessment_type'] == '' || $row['feedback_type'] == '' || $row['email'] == '' || $row['deadline'] == '') {
-                $errors[] = 'Missing required fields in row ' . $row['row_number'];
+            if ($row['course_code'] == '') {
+                $errors[] = 'Row ' . $row['row_number'] . ': Course code is required';
+                continue;
+            }
+
+            if ($row['assessment_type'] == '') {
+                $errors[] = 'Row ' . $row['row_number'] . ': Assessment type is required';
+                continue;
+            }
+
+            if ($row['feedback_type'] == '') {
+                $errors[] = 'Row ' . $row['row_number'] . ': Feedback type is required';
+                continue;
+            }
+
+            if ($row['email'] == '') {
+                $errors[] = 'Row ' . $row['row_number'] . ': Email is required';
+                continue;
+            }
+
+            if ($row['deadline'] == '') {
+                $errors[] = 'Row ' . $row['row_number'] . ': Deadline is required';
                 continue;
             }
 
@@ -68,15 +88,14 @@ class Assessments
                         $deadline = $deadline;
                     }
                 } catch (\Exception $e) {
-                    dd($deadline);
                     $errors[] = "Invalid date format for 'Submission Deadline' for deadline '{$row['deadline']}'.";
 
                     continue;
                 }
             }
-
-
-            $feedbackDeadline = $deadline->addDays(config('assessments.feedback_grace_days'));
+            
+            $feedbackDeadline = $deadline->copy();
+            $feedbackDeadline->addDays(config('assessments.feedback_grace_days'));
 
             $assessment = Assessment::updateOrCreate(
                 [

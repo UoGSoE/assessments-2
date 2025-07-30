@@ -37,9 +37,34 @@ class SubmissionWindows
             if (strtolower($row['course_code']) == 'course code') {
                 continue;
             }
+            
+            if ($row['course_code'] == '') {
+                $errors[] = 'Row ' . $row['row_number'] . ': Course code is required';
+                continue;
+            }
 
-            if ($row['course_code'] == '' || $row['assessment_type'] == '' || $row['feedback_type'] == '' || $row['email'] == '' || $row['submission_window_start'] == '' || $row['submission_window_end'] == '') {
-                $errors[] = 'Missing required fields in row ' . $row['row_number'];
+            if ($row['assessment_type'] == '') {
+                $errors[] = 'Row ' . $row['row_number'] . ': Assessment type is required';
+                continue;
+            }
+
+            if ($row['feedback_type'] == '') {
+                $errors[] = 'Row ' . $row['row_number'] . ': Feedback type is required';
+                continue;
+            }
+
+            if ($row['email'] == '') {
+                $errors[] = 'Row ' . $row['row_number'] . ': Email is required';
+                continue;
+            }
+
+            if ($row['submission_window_start'] == '') {
+                $errors[] = 'Row ' . $row['row_number'] . ': Submission window start is required';
+                continue;
+            }
+
+            if ($row['submission_window_end'] == '') {
+                $errors[] = 'Row ' . $row['row_number'] . ': Submission window end is required';
                 continue;
             }
 
@@ -103,10 +128,10 @@ class SubmissionWindows
                 }
             }
 
+            $feedbackDeadline = $end->copy();
+            $feedbackDeadline->addDays(config('assessments.feedback_grace_days'));
 
-            $feedbackDeadline = $end->addDays(21);
-
-            $assessment = Assessment::updateOrCreate(
+            Assessment::updateOrCreate(
                 [
                     'course_id' => $course->id,
                     'type' => $row['assessment_type'],

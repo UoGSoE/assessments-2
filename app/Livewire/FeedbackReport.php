@@ -19,16 +19,13 @@ class FeedbackReport extends Component
 {
     use WithFileUploads;
 
-    #[Validate('required')]
     public $searchText = '';
     public $assessments = [];
 
     public $user;
 
-    // TODO: Does the URL need to show the query string the first time?
     #[Url]
     public $school;
-
 
     #[Validate('required|file|mimes:xlsx,xls')]
     public $importFile;
@@ -38,15 +35,28 @@ class FeedbackReport extends Component
     public function mount()
     {
         $this->user = Auth::user();
-        if ($this->user->school) {
-            $this->school = $this->user->school;
-            $courses = Course::where('school', $this->school)->get();
-            $this->assessments = Assessment::with(['course', 'staff', 'complaints'])->whereIn('course_id', $courses->pluck('id'))->orderBy('deadline', 'desc')->get();
-        } else {
-            $this->school = 'All schools';
-            $this->assessments = Assessment::with(['course', 'staff', 'complaints'])->orderBy('deadline', 'desc')->get();
+        if (!$this->school) {
+            if ($this->user->school) {
+                $this->school = $this->user->school;
+            } else {
+                $this->school = 'All schools';
+            }
         }
 
+        if ($this->school == 'All schools') {
+            $this->assessments = Assessment::with(['course', 'staff', 'complaints'])
+                ->orderBy('deadline', 'desc')->get();
+        } else {
+            $courses = Course::where('school', $this->school)->get();
+            $this->assessments = Assessment::with(['course', 'staff', 'complaints'])
+                ->whereIn('course_id', $courses->pluck('id'))
+                ->orderBy('deadline', 'desc')->get();
+        }
+    }
+
+    public function render()
+    {
+        return view('livewire.feedback-report');
     }
 
     public function updatedSearchText($value)
@@ -76,7 +86,7 @@ class FeedbackReport extends Component
         $this->assessments = $assessments;
     }
 
-    public function updatedSchool($value)
+    public function updatedSchool()
     {
         $this->reset('assessments');
         if ($this->school == 'All schools') {
@@ -85,11 +95,6 @@ class FeedbackReport extends Component
             $courses = Course::where('school', $this->school)->get();
             $this->assessments = Assessment::with(['course', 'staff', 'complaints'])->whereIn('course_id', $courses->pluck('id'))->orderBy('deadline', 'desc')->get();
         }
-    }
-
-    public function render()
-    {
-        return view('livewire.feedback-report');
     }
 
     public function exportAsExcel()
@@ -144,7 +149,7 @@ class FeedbackReport extends Component
 
     public function removeAllStudentCourses()
     {
-        $students = User::where('is_staff', false)->where('is_staff', false)->get();
+        $students = User::where('is_staff', false)->get();
 
         foreach ($students as $student) {
             $student->coursesAsStudent()->detach();

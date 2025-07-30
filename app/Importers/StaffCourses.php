@@ -30,8 +30,28 @@ class StaffCourses
                 continue;
             }
 
-            if ($row['forenames'] == '' || $row['surname'] == '' || $row['username'] == '' || $row['email'] == '' || $row['course_code'] == '') {
-                $errors[] = 'Missing required fields in row ' . $row['row_number'];
+            if ($row['forenames'] == '') {
+                $errors[] = 'Row ' . $row['row_number'] . ': Forenames are required';
+                continue;
+            }
+
+            if ($row['surname'] == '') {
+                $errors[] = 'Row ' . $row['row_number'] . ': Surname is required';
+                continue;
+            }
+
+            if ($row['username'] == '') {
+                $errors[] = 'Row ' . $row['row_number'] . ': GUID is required';
+                continue;
+            }
+
+            if ($row['email'] == '') {
+                $errors[] = 'Row ' . $row['row_number'] . ': Email is required';
+                continue;
+            }
+
+            if ($row['course_code'] == '') {
+                $errors[] = 'Row ' . $row['row_number'] . ': Course code is required';
                 continue;
             }
 

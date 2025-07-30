@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Complaint extends Model
 {
-    /** @use HasFactory<\Database\Factories\ComplaintFactory> */
     use HasFactory;
 
     protected $fillable = ['assessment_id', 'student_id', 'staff_id', 'staff_notified'];

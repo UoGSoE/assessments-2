@@ -3,7 +3,6 @@
 namespace App\Livewire;
 
 use App\Models\Course as ModelsCourse;
-use App\Models\User;
 use Livewire\Component;
 use App\Models\Assessment;
 class Course extends Component

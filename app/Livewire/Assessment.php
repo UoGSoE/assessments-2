@@ -3,10 +3,8 @@
 namespace App\Livewire;
 
 use App\Models\Assessment as ModelsAssessment;
-use App\Models\User;
 use Flux\Flux;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 
 class Assessment extends Component

@@ -25,13 +25,10 @@ class UserFactory extends Factory
     {
         return [
             'username' => fake()->unique()->regexify('[0-9]{7}[a-zA-Z]'),
-            //'username' => fake()->userName(),
             'email' => fake()->unique()->safeEmail(),
             'surname' => fake()->lastName(),
             'forenames' => fake()->firstName(),
             'email_verified_at' => now(),
-            // TODO: Change back to hashed value after testing
-            //'password' => static::$password ??= Hash::make('password'),
             'password' => 'secret',
             'is_staff' => false,
             'remember_token' => Str::random(10),

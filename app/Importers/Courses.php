@@ -47,15 +47,30 @@ class Courses
                 'course_title' => $row[0],
                 'course_code' => $row[1],
                 'discipline' => $row[2],
-                'active' => $row[3] == 'Yes' ? true : false,
+                'active' => $row[3]
             ];
 
             if (strtolower($row['course_title']) == 'course title') {
                 continue;
             }
 
-            if ($row['course_title'] == '' || $row['course_code'] == '' || $row['discipline'] == '' || $row['active'] == '') {
-                $errors[] = 'Missing required fields in row ' . $row['row_number'];
+            if ($row['course_title'] == '') {
+                $errors[] = 'Row ' . $row['row_number'] . ': Course title is required';
+                continue;
+            }
+
+            if ($row['course_code'] == '') {
+                $errors[] = 'Row ' . $row['row_number'] . ': Course code is required';
+                continue;
+            }
+
+            if ($row['discipline'] == '') {
+                $errors[] = 'Row ' . $row['row_number'] . ': Course discipline is required';
+                continue;
+            }
+
+            if ($row['active'] != 'Yes' && $row['active'] != 'No') {
+                $errors[] = 'Row ' . $row['row_number'] . ': Course active must be Yes or No';
                 continue;
             }
 
@@ -68,7 +83,7 @@ class Courses
                         'code' => $row['course_code'],
                         'school' => $this->codeToSchool($row['course_code']),
                         'year' => $this->codeToYear($row['course_code']),
-                        'is_active' => $row['active'],
+                        'is_active' => $row['active'] == 'Yes' ? true : false,
                         'discipline' => $row['discipline']
                     ]
                 );

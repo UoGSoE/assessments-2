@@ -1,8 +1,8 @@
-
 <div>
     <flux:heading size="xl" class="mb-4">Import Courses</flux:heading>
     <div class="space-y-6">
-        <form action="{{ route('import.courses.upload') }}" method="post" enctype="multipart/form-data" class="space-y-4">
+        <form action="{{ route('import.upload', ['type' => 'courses']) }}" method="post" enctype="multipart/form-data"
+            class="space-y-4">
             @csrf
             <label class="label mb-4">Spreadsheet</label>
             <div class="box mb-4 overflow-x-auto">
@@ -18,7 +18,8 @@
                 <flux:spacer />
             </div>
             <div>
-                <flux:input type="file" name="importFile" accept=".xlsx,.xls" wire:model="importFile" class="mb-4"/>
+                <flux:input type="file" name="importFile" accept=".xlsx,.xls" wire:model="importFile"
+                    class="mb-4" />
                 <flux:button type="submit" variant="primary">Upload</flux:button>
             </div>
         </form>

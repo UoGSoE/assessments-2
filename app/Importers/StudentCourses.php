@@ -8,10 +8,6 @@ use Illuminate\Support\Str;
 
 class StudentCourses
 {
-    /**
-     * Create a new class instance.
-     */
-
     public function process($rows): array
     {
         $errors = [];
@@ -34,8 +30,23 @@ class StudentCourses
                 continue;
             }
 
-            if ($row['forenames'] == '' || $row['surname'] == '' || $row['username'] == '' || $row['course'] == '') {
-                $errors[] = 'Missing required fields in row ' . $row['row_number'];
+            if ($row['forenames'] == '') {
+                $errors[] = 'Row ' . $row['row_number'] . ': Forenames are required';
+                continue;
+            }
+
+            if ($row['surname'] == '') {
+                $errors[] = 'Row ' . $row['row_number'] . ': Surname is required';
+                continue;
+            }
+
+            if ($row['username'] == '') {
+                $errors[] = 'Row ' . $row['row_number'] . ': GUID is required';
+                continue;
+            }
+
+            if ($row['course'] == '') {
+                $errors[] = 'Row ' . $row['row_number'] . ': Course code is required';
                 continue;
             }
 
@@ -44,6 +55,7 @@ class StudentCourses
                 $errors[] = "Course with code '{$row['course']}' not found - please add it to the system first.";
                 continue;
             }
+            
             $student = User::firstOrCreate([
                 'username' => $row['username'],
             ], [
