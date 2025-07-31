@@ -2,8 +2,8 @@
 
 namespace App\Livewire;
 
-use App\Models\User;
 use App\Models\Assessment;
+use App\Models\User;
 use Livewire\Component;
 use OpenSpout\Common\Entity\Cell;
 use OpenSpout\Common\Entity\Row;
@@ -11,11 +11,12 @@ use OpenSpout\Common\Entity\Row;
 class StaffList extends Component
 {
     public $staff;
+
     public $searchText = '';
 
     public function mount()
     {
-        $this->staff = User::where('is_staff', true)->orderBy('surname')->get();
+        $this->staff = User::staff()->orderBy('surname')->get();
     }
 
     public function render()
@@ -25,9 +26,10 @@ class StaffList extends Component
 
     public function updatedSearchText($value)
     {
-        $this->reset('staff');
         $searchTerm = $value;
-        $this->staff = User::where('surname', 'like', '%' . $searchTerm . '%')->orWhere('forenames', 'like', '%' . $searchTerm . '%')->get();
+        $this->staff = User::where('surname', 'like', '%'.$searchTerm.'%')
+            ->orWhere('forenames', 'like', '%'.$searchTerm.'%')
+            ->get();
     }
 
     public function isLate(Assessment $assessment)
@@ -48,16 +50,17 @@ class StaffList extends Component
                 $missedDeadlines++;
             }
         }
+
         return $missedDeadlines;
     }
 
     public function exportStaffList()
     {
         $tempDir = sys_get_temp_dir();
-        $fileName = now()->format('Y-m-d') . '-assessments.xlsx';
-        $filePath = $tempDir . '/' . $fileName;
+        $fileName = now()->format('Y-m-d').'-assessments.xlsx';
+        $filePath = $tempDir.'/'.$fileName;
 
-        $writer = new \OpenSpout\Writer\XLSX\Writer();
+        $writer = new \OpenSpout\Writer\XLSX\Writer;
         $writer->openToFile($filePath);
 
         $cells = [

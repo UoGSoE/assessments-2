@@ -8,18 +8,19 @@ use App\Models\Course;
 use App\Models\User;
 use Flux\Flux;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Url;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use OpenSpout\Common\Entity\Cell;
 use OpenSpout\Common\Entity\Row;
-use Livewire\Attributes\Url;
 
 class FeedbackReport extends Component
 {
     use WithFileUploads;
 
     public $searchText = '';
+
     public $assessments = [];
 
     public $user;
@@ -35,23 +36,16 @@ class FeedbackReport extends Component
     public function mount()
     {
         $this->user = Auth::user();
-        if (!$this->school) {
-            if ($this->user->school) {
-                $this->school = $this->user->school;
-            } else {
-                $this->school = 'All schools';
-            }
+        $this->school ??= $this->user->school ?? 'All schools';
+
+        $query = Assessment::with(['course', 'staff', 'complaints'])->orderBy('deadline', 'desc');
+
+        if ($this->school !== 'All schools') {
+            $courseIds = Course::where('school', $this->school)->pluck('id');
+            $query->whereIn('course_id', $courseIds);
         }
 
-        if ($this->school == 'All schools') {
-            $this->assessments = Assessment::with(['course', 'staff', 'complaints'])
-                ->orderBy('deadline', 'desc')->get();
-        } else {
-            $courses = Course::where('school', $this->school)->get();
-            $this->assessments = Assessment::with(['course', 'staff', 'complaints'])
-                ->whereIn('course_id', $courses->pluck('id'))
-                ->orderBy('deadline', 'desc')->get();
-        }
+        $this->assessments = $query->get();
     }
 
     public function render()
@@ -62,48 +56,42 @@ class FeedbackReport extends Component
     public function updatedSearchText($value)
     {
         $this->reset('assessments');
-        $searchTerm = $value;
-        
-        $courses = Course::where('code', 'like', '%' . $searchTerm . '%')->get();
-        $courseIds = $courses->pluck('id');
-        
-        $staff = User::where('is_staff', true)
-            ->where(function($query) use ($searchTerm) {
-                $query->where('surname', 'like', '%' . $searchTerm . '%')
-                      ->orWhere('forenames', 'like', '%' . $searchTerm . '%');
-            })->get();
-        $staffIds = $staff->pluck('id');
-        
-        $assessments = Assessment::with(['course', 'staff', 'complaints'])
-            ->where(function($query) use ($searchTerm, $courseIds, $staffIds) {
-                $query->whereIn('course_id', $courseIds)
-                      ->orWhereIn('staff_id', $staffIds)
-                      ->orWhere('type', 'like', '%' . $searchTerm . '%');
+
+        $this->assessments = Assessment::with(['course', 'staff', 'complaints'])
+            ->where(function ($query) use ($value) {
+                $query->where('type', 'like', "%{$value}%")
+                    ->orWhereHas('course', function ($courseQuery) use ($value) {
+                        $courseQuery->where('code', 'like', "%{$value}%");
+                    })
+                    ->orWhereHas('staff', function ($staffQuery) use ($value) {
+                        $staffQuery->where('surname', 'like', "%{$value}%")
+                            ->orWhere('forenames', 'like', "%{$value}%");
+                    });
             })
             ->orderBy('deadline', 'desc')
             ->get();
-            
-        $this->assessments = $assessments;
     }
 
     public function updatedSchool()
     {
         $this->reset('assessments');
-        if ($this->school == 'All schools') {
-            $this->assessments = Assessment::with(['course', 'staff', 'complaints'])->orderBy('deadline', 'desc')->get();
-        } else {
+        $query = Assessment::query()->with(['course', 'staff', 'complaints'])->orderBy('deadline', 'desc');
+
+        if ($this->school !== 'All schools') {
             $courses = Course::where('school', $this->school)->get();
-            $this->assessments = Assessment::with(['course', 'staff', 'complaints'])->whereIn('course_id', $courses->pluck('id'))->orderBy('deadline', 'desc')->get();
+            $query->whereIn('course_id', $courses->pluck('id'));
         }
+
+        $this->assessments = $query->get();
     }
 
     public function exportAsExcel()
     {
         $tempDir = sys_get_temp_dir();
-        $fileName = now()->format('Y-m-d') . '-assessments.xlsx';
-        $filePath = $tempDir . '/' . $fileName;
+        $fileName = now()->format('Y-m-d').'-assessments.xlsx';
+        $filePath = $tempDir.'/'.$fileName;
 
-        $writer = new \OpenSpout\Writer\XLSX\Writer();
+        $writer = new \OpenSpout\Writer\XLSX\Writer;
         $writer->openToFile($filePath);
 
         $cells = [
@@ -149,7 +137,7 @@ class FeedbackReport extends Component
 
     public function removeAllStudentCourses()
     {
-        $students = User::where('is_staff', false)->get();
+        $students = User::where('is_staff', false)->where('is_admin', false)->get();
 
         foreach ($students as $student) {
             $student->coursesAsStudent()->detach();
@@ -163,7 +151,7 @@ class FeedbackReport extends Component
         foreach (Complaint::all() as $complaint) {
             $complaint->delete();
         }
-        
+
         foreach (Assessment::all() as $assessment) {
             $assessment->delete();
         }

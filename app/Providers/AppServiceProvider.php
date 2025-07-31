@@ -44,7 +44,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Gate::define('add-complaint', function (User $user, Assessment $assessment) {
-            return $assessment->course->students->contains($user->id) && !$assessment->isOld() && !$assessment->studentAlreadyComplained($user);
+            return $assessment->course->students->contains($user->id) && ! $assessment->isOld() && ! $assessment->studentAlreadyComplained($user);
         });
 
         Gate::define('view-complaints', function (User $user, Assessment $assessment) {
@@ -52,7 +52,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Gate::define('filter-by-year', function (User $user) {
-            return $user->is_staff;
+            return $user->is_staff || $user->is_admin;
         });
     }
 }

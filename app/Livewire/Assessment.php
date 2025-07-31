@@ -10,9 +10,11 @@ use Livewire\Component;
 class Assessment extends Component
 {
     public $assessment;
+
     public $complaints;
+
     public $feedback_completed_date;
-    
+
     public function mount(ModelsAssessment $assessment)
     {
         $this->assessment = $assessment->load(['course.students', 'complaints.student']);
@@ -28,13 +30,14 @@ class Assessment extends Component
     public function deleteAssessment()
     {
         $this->assessment->delete();
+
         return redirect()->route('assessment.index');
     }
 
     public function saveCompletedDate()
     {
         $this->validate([
-            'feedback_completed_date' => 'required|date',
+            'feedback_completed_date' => 'required|date_format:Y-m-d',
         ]);
         $this->assessment->feedback_completed_date = $this->feedback_completed_date;
         $this->assessment->save();
@@ -49,6 +52,6 @@ class Assessment extends Component
             'staff_notified' => false,
         ]);
         $this->complaints = $this->assessment->complaints()->get();
-        Flux::toast('Complaint added successfully.');
+        Flux::toast('Feedback added successfully.');
     }
 }

@@ -2,21 +2,21 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Assessment;
-use App\Models\User;
 use App\Mail\OverdueFeedback;
 use App\Models\Complaint;
+use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
 
 class NotifyStaffOverdueFeedback extends Command
 {
     protected $signature = 'assessments:notify-staff-overdue-feedback';
+
     protected $description = 'Notify staff members about overdue feedback';
 
     public function handle()
     {
-        $staff = User::where('is_staff', true)->get();
+        $staff = User::staff()->get();
         foreach ($staff as $staffMember) {
             $complaints = Complaint::where('staff_id', $staffMember->id)->where('staff_notified', false)->get();
             if ($complaints->count() > 0) {
@@ -27,6 +27,6 @@ class NotifyStaffOverdueFeedback extends Command
                 $complaint->staff_notified = true;
             }
         }
-        $this->info("Finished checking staff.");
+        $this->info('Finished checking staff.');
     }
 }

@@ -1,9 +1,7 @@
 <?php
 
-use App\Models\Assessment;
 use App\Livewire\CreateAssessment;
 use App\Livewire\FeedbackReport;
-use App\Models\Complaint;
 use App\Models\Course;
 use App\Models\User;
 
@@ -22,7 +20,6 @@ it('can be rendered', function () {
         ->assertSee('Comment')
         ->assertSee('Create');
 });
-
 
 it('is created', function () {
     $staff = User::factory()->staff()->create();
@@ -69,3 +66,39 @@ it('only allows admins to create assessments', function () {
         ->assertForbidden();
 });
 
+it('creates assessment in database with correct attributes', function () {
+    $staff = User::factory()->staff()->create();
+    $admin = User::factory()->admin()->create(['school' => 'ENG']);
+    $course = Course::factory()->create(['school' => 'ENG']);
+
+    actingAs($admin);
+    livewire(CreateAssessment::class)
+        ->set('assessment_type', 'Quiz 500')
+        ->set('staff_feedback_type', 'Moodle')
+        ->set('staff_id', $staff->id)
+        ->set('course_id', $course->id)
+        ->set('deadline', '2025-12-12')
+        ->set('feedback_deadline', '2025-12-24')
+        ->call('createAssessment');
+
+    $this->assertDatabaseHas('assessments', [
+        'type' => 'Quiz 500',
+        'feedback_type' => 'Moodle',
+        'staff_id' => $staff->id,
+        'course_id' => $course->id,
+        'deadline' => '2025-12-12 00:00:00',
+        'feedback_deadline' => '2025-12-24 00:00:00',
+    ]);
+});
+
+it('validates date format for deadlines', function () {
+    livewire(CreateAssessment::class)
+        ->set('assessment_type', 'Quiz')
+        ->set('staff_feedback_type', 'Moodle')
+        ->set('staff_id', 1)
+        ->set('course_id', 1)
+        ->set('deadline', 'invalid-date')
+        ->set('feedback_deadline', '2025/12/25')
+        ->call('createAssessment')
+        ->assertHasErrors(['deadline']);
+});

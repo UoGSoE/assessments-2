@@ -38,7 +38,7 @@
                 initialView: 'dayGridMonth',
                 plugins: [window.FullCalendar.dayGridPlugin],
                 events: this.events,
-                displayEventTime: true,
+                displayEventTime: false,
                 eventDisplay: 'block',
                 height: 'auto'
             });

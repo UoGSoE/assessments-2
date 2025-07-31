@@ -24,7 +24,6 @@ class User extends Authenticatable
         'school',
     ];
 
-
     protected $hidden = [
         'password',
         'remember_token',
@@ -65,11 +64,16 @@ class User extends Authenticatable
 
     public function getNameAttribute(): string
     {
-        return trim($this->surname . ', ' . $this->forenames);
+        return trim($this->surname.', '.$this->forenames);
     }
 
     public function loginLogs(): HasMany
     {
         return $this->hasMany(LoginLog::class);
+    }
+
+    public function scopeStaff($query)
+    {
+        return $query->where('is_staff', true);
     }
 }

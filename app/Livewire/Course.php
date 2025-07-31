@@ -4,20 +4,20 @@ namespace App\Livewire;
 
 use App\Models\Course as ModelsCourse;
 use Livewire\Component;
-use App\Models\Assessment;
+
 class Course extends Component
 {
     public $course;
+
     public $students;
+
     public $assessments;
-    
+
     public function mount(ModelsCourse $course)
     {
         $this->course = $course;
-        $this->students = $this->course->students;
-        $this->assessments = Assessment::with(['staff', 'complaints'])
-            ->where('course_id', $this->course->id)
-            ->get();
+        $this->students = $course->students;
+        $this->assessments = $course->assessments()->with(['staff', 'complaints'])->get();
     }
 
     public function render()

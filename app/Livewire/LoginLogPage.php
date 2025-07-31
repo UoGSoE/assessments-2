@@ -11,9 +11,13 @@ class LoginLogPage extends Component
     use WithPagination;
 
     public $minDate = '';
+
     public $maxDate = '';
+
     public $userType = '';
+
     public $loginLogs;
+
     public $searchText = '';
 
     protected $queryString = [
@@ -52,11 +56,10 @@ class LoginLogPage extends Component
 
     public function updatedSearchText($value)
     {
-        $this->reset('loginLogs');
         $searchTerm = $value;
         $this->loginLogs = LoginLog::whereHas('user', function ($userQuery) use ($searchTerm) {
-            $userQuery->where('surname', 'like', '%' . $searchTerm . '%')
-                     ->orWhere('forenames', 'like', '%' . $searchTerm . '%');
+            $userQuery->where('surname', 'like', '%'.$searchTerm.'%')
+                ->orWhere('forenames', 'like', '%'.$searchTerm.'%');
         })->orderBy('created_at', 'desc')->get();
     }
 
@@ -81,13 +84,10 @@ class LoginLogPage extends Component
             $query->whereDate('created_at', '<=', $this->maxDate);
         }
 
-        if ($this->userType == 'All') {
-            $query->where('user_type', '!=', null);
-        } else if ($this->userType) {
+        if ($this->userType && $this->userType !== 'All') {
             $query->where('user_type', $this->userType);
         }
 
-        $this->loginLogs = $query->orderBy('created_at', 'desc')->get();
+        $this->loginLogs = $query->orderBy('created_at', 'desc')->paginate(20);
     }
-
 }

@@ -1,10 +1,8 @@
 <?php
 
-use App\Models\Assessment;
-use App\Livewire\CreateAssessment;
 use App\Livewire\EditAssessment;
 use App\Livewire\FeedbackReport;
-use App\Models\Complaint;
+use App\Models\Assessment;
 use App\Models\Course;
 use App\Models\User;
 
@@ -17,8 +15,8 @@ beforeEach(function () {
     $this->staff = User::factory()->staff()->create();
     $this->assessment = Assessment::factory()->create([
         'deadline' => '2025-12-12',
-        'type' => 'Quiz 500', 
-        'course_id' => $this->course->id, 
+        'type' => 'Quiz 500',
+        'course_id' => $this->course->id,
         'staff_id' => $this->staff->id,
         'feedback_type' => 'Moodle',
         'feedback_deadline' => '2025-12-24',
@@ -58,6 +56,16 @@ it('is updated', function () {
         ->assertSee('Canvas')
         ->assertSee($new_staff->name)
         ->assertSee($new_course->code);
+
+    $this->assertDatabaseHas('assessments', [
+        'id' => $this->assessment->id,
+        'type' => 'Quiz 501',
+        'feedback_type' => 'Canvas',
+        'staff_id' => $new_staff->id,
+        'course_id' => $new_course->id,
+        'deadline' => '2025-12-13 00:00:00',
+        'feedback_deadline' => '2025-12-25 00:00:00',
+    ]);
 });
 
 it('validates the form', function () {

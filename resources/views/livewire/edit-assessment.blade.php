@@ -15,7 +15,9 @@
             <flux:label>Staff</flux:label>
             <flux:select wire:model="staff_id">
                 @foreach ($staff as $staffMember)
-                    <flux:select.option value="{{ $staffMember->id }}" :selected="$staffMember->id === $assessment->staff_id">{{ $staffMember->name }}</flux:select.option>
+                    <flux:select.option value="{{ $staffMember->id }}"
+                        :selected="$staffMember->id === $assessment->staff_id">{{ $staffMember->name }}
+                    </flux:select.option>
                 @endforeach
             </flux:select>
             <flux:error name="staff_id" />
@@ -24,7 +26,8 @@
             <flux:label>Course</flux:label>
             <flux:select wire:model="course_id">
                 @foreach ($courses as $course)
-                    <flux:select.option value="{{ $course->id }}" :selected="$course->id === $assessment->course_id">{{ $course->code }}</flux:select.option>
+                    <flux:select.option value="{{ $course->id }}" :selected="$course->id === $assessment->course_id">
+                        {{ $course->code }}</flux:select.option>
                 @endforeach
             </flux:select>
             <flux:error name="course_id" />

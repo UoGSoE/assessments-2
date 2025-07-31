@@ -1,8 +1,8 @@
 <?php
 
-use App\Models\Assessment;
 use App\Livewire\Assessment as AssessmentLivewire;
 use App\Livewire\FeedbackReport;
+use App\Models\Assessment;
 use App\Models\Complaint;
 use App\Models\Course;
 use App\Models\User;
@@ -32,7 +32,6 @@ it('can be rendered', function () {
         ->assertDontSee('Report assessment feedback is overdue');
 });
 
-
 it('displays individual assessment details', function () {
 
     actingAs($this->admin);
@@ -59,6 +58,11 @@ it('allows feedback completed date to be saved', function () {
 
     expect($this->assessment->refresh()->feedback_completed_date->format('Y-m-d'))->toBe('2025-12-12');
 
+    $this->assertDatabaseHas('assessments', [
+        'id' => $this->assessment->id,
+        'feedback_completed_date' => '2025-12-12 00:00:00',
+    ]);
+
     livewire(FeedbackReport::class)
         ->assertSee('12/12/2025');
 
@@ -71,7 +75,7 @@ it('displays all complaints', function () {
     actingAs($this->admin);
     livewire(AssessmentLivewire::class, ['assessment' => $this->assessment])
         ->assertSee($complaint->student->name);
-    
+
 });
 
 it('deletes assessment', function () {
@@ -82,15 +86,17 @@ it('deletes assessment', function () {
 
     livewire(AssessmentLivewire::class, ['assessment' => $this->assessment])
         ->call('deleteAssessment');
-    
+
     livewire(FeedbackReport::class)
         ->assertDontSee($this->assessment->type);
-    
+
+    $this->assertDatabaseMissing('assessments', [
+        'id' => $this->assessment->id,
+    ]);
 });
 
-it('allows students to add complaints', function () {   
+it('allows students to add complaints', function () {
     $student = User::factory()->create();
-    
 
     actingAs($student);
     livewire(AssessmentLivewire::class, ['assessment' => $this->assessment])
@@ -103,6 +109,13 @@ it('allows students to add complaints', function () {
         ->call('addComplaint');
 
     expect($this->assessment->refresh()->complaints->count())->toBe(1);
+
+    $this->assertDatabaseHas('complaints', [
+        'assessment_id' => $this->assessment->id,
+        'student_id' => $student->id,
+        'staff_id' => $this->staff->id,
+        'staff_notified' => false,
+    ]);
 
     actingAs($this->staff);
     livewire(AssessmentLivewire::class, ['assessment' => $this->assessment])
@@ -127,7 +140,6 @@ it('does not allow complaints on old assessments', function () {
     livewire(AssessmentLivewire::class, ['assessment' => $oldAssessment])
         ->assertDontSee('Report assessment feedback is overdue');
 });
-
 
 it('only allows admins to edit or delete assessments', function () {
 
