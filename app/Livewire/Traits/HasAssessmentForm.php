@@ -30,8 +30,8 @@ trait HasAssessmentForm
         'staff_feedback_type' => 'required|string',
         'course_id' => 'required|exists:courses,id',
         'staff_id' => 'required|exists:users,id',
-        'deadline' => 'required|date',
-        'feedback_deadline' => 'required|date',
+        'deadline' => 'required|date_format:Y-m-d',
+        'feedback_deadline' => 'required|date_format:Y-m-d',
         'comment' => 'nullable|string',
     ];
 
@@ -60,8 +60,8 @@ trait HasAssessmentForm
         $this->staff_feedback_type = $assessment->feedback_type;
         $this->course_id = $assessment->course_id;
         $this->staff_id = $assessment->staff_id;
-        $this->deadline = $assessment->deadline;
-        $this->feedback_deadline = $assessment->feedback_deadline;
+        $this->deadline = $assessment->deadline ? $assessment->deadline->format('Y-m-d') : null;
+        $this->feedback_deadline = $assessment->feedback_deadline ? $assessment->feedback_deadline->format('Y-m-d') : null;
         $this->comment = $assessment->comment;
     }
 }

@@ -60,7 +60,7 @@ class LoginLogPage extends Component
         $this->loginLogs = LoginLog::whereHas('user', function ($userQuery) use ($searchTerm) {
             $userQuery->where('surname', 'like', '%'.$searchTerm.'%')
                 ->orWhere('forenames', 'like', '%'.$searchTerm.'%');
-        })->orderBy('created_at', 'desc')->get();
+        })->orderBy('created_at', 'desc')->paginate(20);
     }
 
     public function clearFilters()

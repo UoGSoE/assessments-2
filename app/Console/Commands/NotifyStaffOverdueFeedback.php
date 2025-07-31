@@ -25,6 +25,7 @@ class NotifyStaffOverdueFeedback extends Command
             }
             foreach ($complaints as $complaint) {
                 $complaint->staff_notified = true;
+                $complaint->save();
             }
         }
         $this->info('Finished checking staff.');
