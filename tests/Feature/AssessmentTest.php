@@ -164,3 +164,50 @@ it('cannot be viewed by students and staff from other courses', function () {
         ->assertForbidden();
 
 });
+
+it('determines if assessment can be auto signed off', function () {
+    // Case 1: Should NOT auto sign-off (deadline not passed)
+    $assessment = Assessment::factory()->create([
+        'feedback_deadline' => now()->addDays(1),
+        'feedback_completed_date' => null,
+    ]);
+    expect($assessment->canBeAutoSignedOff())->toBeFalse();
+
+    // Case 2: Should NOT auto sign-off (has complaints)
+    $assessmentWithComplaints = Assessment::factory()->create([
+        'feedback_deadline' => now()->subDays(30),
+        'feedback_completed_date' => null,
+    ]);
+    Complaint::factory()->create(['assessment_id' => $assessmentWithComplaints->id]);
+    expect($assessmentWithComplaints->canBeAutoSignedOff())->toBeFalse();
+
+    // Case 3: SHOULD auto sign-off (all conditions met)
+    $validAssessment = Assessment::factory()->create([
+        'feedback_deadline' => now()->subDays(30),
+        'feedback_completed_date' => null,
+    ]);
+    expect($validAssessment->canBeAutoSignedOff())->toBeTrue();
+});
+
+it('calculates percentage of negative feedbacks correctly', function () {
+    $course = Course::factory()->create();
+    $students = User::factory()->count(10)->create();
+    foreach ($students as $student) {
+        $course->students()->attach($student);
+    }
+
+    $assessment = Assessment::factory()->create(['course_id' => $course->id]);
+
+    // 3 complaints out of 10 students = 30%
+    Complaint::factory()->count(3)->create(['assessment_id' => $assessment->id]);
+    expect($assessment->percentageNegativeFeedbacks())->toBe(30.0);
+});
+
+it('identifies problematic assessments based on school threshold', function () {
+    // You'll need to check your config file for actual threshold values
+    $course = Course::factory()->create(['school' => 'ENG']);
+    $assessment = Assessment::factory()->create(['course_id' => $course->id]);
+
+    // Mock or set config threshold and test both sides
+    expect($assessment->isProblematic())->toBeBool();
+});

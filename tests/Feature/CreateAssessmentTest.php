@@ -102,3 +102,15 @@ it('validates date format for deadlines', function () {
         ->call('createAssessment')
         ->assertHasErrors(['deadline']);
 });
+
+it('rejects invalid staff_id that does not exist', function () {
+    livewire(CreateAssessment::class)
+        ->set('assessment_type', 'Quiz')
+        ->set('staff_feedback_type', 'Moodle')
+        ->set('staff_id', 99999) // Non-existent ID
+        ->set('course_id', Course::factory()->create()->id)
+        ->set('deadline', '2025-12-12')
+        ->set('feedback_deadline', '2025-12-24')
+        ->call('createAssessment')
+        ->assertHasErrors(['staff_id']);
+});
