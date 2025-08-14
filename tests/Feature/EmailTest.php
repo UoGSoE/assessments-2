@@ -12,9 +12,9 @@ use Illuminate\Support\Facades\Mail;
 it('contains staff email content', function () {
     $staff = User::factory()->staff()->create();
     $complaints = Complaint::factory()->count(3)->create(['staff_id' => $staff->id]);
-    
+
     $email = new OverdueFeedback($complaints);
-    
+
     $email->assertSeeInHtml('Assessment Feedback');
 
     foreach ($complaints as $complaint) {
@@ -26,7 +26,7 @@ it('sends staff email', function () {
     Mail::fake();
     $staff = User::factory()->staff()->create();
     $complaints = Complaint::factory()->count(3)->create(['staff_id' => $staff->id]);
-    
+
     $email = new OverdueFeedback($complaints);
     Mail::to($staff->email)->send($email);
 
@@ -90,17 +90,15 @@ it('sends staff email when complaints exist', function () {
     Mail::assertSent(OverdueFeedback::class);
 });
 
-// TODO: test that commands work
-
 it('auto signs off assessments', function () {
     $assessment = Assessment::factory()->create(['feedback_deadline' => Carbon::now()->subDays(25)]);
     expect($assessment->canBeAutoSignedOff())->toBeTrue();
     expect($assessment->feedback_completed_date)->toBeNull();
     expect($assessment->complaints->count())->toBe(0);
-    
+
     $this->artisan('assessments:auto-signoff');
 
     $assessment->refresh();
     expect($assessment->feedback_completed_date)->not->toBeNull();
-    
+
 });

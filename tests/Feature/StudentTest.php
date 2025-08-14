@@ -1,14 +1,10 @@
 <?php
 
-use App\Livewire\FeedbackReport;
-use App\Livewire\Staff;
-use App\Livewire\StaffList;
 use App\Livewire\Student;
 use App\Models\Assessment;
-use App\Models\Complaint;
 use App\Models\Course;
 use App\Models\User;
-use Livewire\Livewire;
+
 use function Pest\Laravel\actingAs;
 use function Pest\Livewire\livewire;
 
@@ -42,9 +38,7 @@ it('displays student details', function () {
         ->assertSee($student->email)
         ->assertSee($course1->code)
         ->assertSee($course2->code);
-        // TODO: Can calendar contents be tested
-        //->assertSee('$assessment1->type');
-}); 
+});
 
 it('only allows admins and staff to view page', function () {
     $random_student = User::factory()->create();

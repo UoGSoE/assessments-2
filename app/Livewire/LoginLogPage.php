@@ -16,51 +16,40 @@ class LoginLogPage extends Component
 
     public $userType = '';
 
-    public $loginLogs;
-
     public $searchText = '';
 
     protected $queryString = [
         'minDate' => ['except' => ''],
         'maxDate' => ['except' => ''],
         'userType' => ['except' => ''],
+        'searchText' => ['except' => ''],
     ];
-
-    public function mount()
-    {
-        $this->loadLoginLogs();
-    }
 
     public function render()
     {
-        return view('livewire.login-log-page');
+        return view('livewire.login-log-page', [
+            'loginLogs' => $this->getLoginLogs(),
+        ]);
     }
 
     public function updatedMinDate()
     {
         $this->resetPage();
-        $this->loadLoginLogs();
     }
 
     public function updatedMaxDate()
     {
         $this->resetPage();
-        $this->loadLoginLogs();
     }
 
     public function updatedUserType()
     {
         $this->resetPage();
-        $this->loadLoginLogs();
     }
 
-    public function updatedSearchText($value)
+    public function updatedSearchText()
     {
-        $searchTerm = $value;
-        $this->loginLogs = LoginLog::whereHas('user', function ($userQuery) use ($searchTerm) {
-            $userQuery->where('surname', 'like', '%'.$searchTerm.'%')
-                ->orWhere('forenames', 'like', '%'.$searchTerm.'%');
-        })->orderBy('created_at', 'desc')->paginate(20);
+        $this->resetPage();
     }
 
     public function clearFilters()
@@ -68,26 +57,24 @@ class LoginLogPage extends Component
         $this->minDate = '';
         $this->maxDate = '';
         $this->userType = '';
+        $this->searchText = '';
         $this->resetPage();
-        $this->loadLoginLogs();
     }
 
-    private function loadLoginLogs()
+    private function getLoginLogs()
     {
-        $query = LoginLog::with('user');
-
-        if ($this->minDate) {
-            $query->whereDate('created_at', '>=', $this->minDate);
-        }
-
-        if ($this->maxDate) {
-            $query->whereDate('created_at', '<=', $this->maxDate);
-        }
-
-        if ($this->userType && $this->userType !== 'All') {
-            $query->where('user_type', $this->userType);
-        }
-
-        $this->loginLogs = $query->orderBy('created_at', 'desc')->paginate(20);
+        return LoginLog::with('user')
+            ->when($this->minDate, fn ($query) => $query->whereDate('created_at', '>=', $this->minDate))
+            ->when($this->maxDate, fn ($query) => $query->whereDate('created_at', '<=', $this->maxDate))
+            ->when($this->userType && $this->userType !== 'all', fn ($query) => $query->where('user_type', $this->userType))
+            ->when($this->searchText, function ($query) {
+                $searchTerm = $this->searchText;
+                $query->whereHas('user', function ($userQuery) use ($searchTerm) {
+                    $userQuery->where('surname', 'like', '%'.$searchTerm.'%')
+                        ->orWhere('forenames', 'like', '%'.$searchTerm.'%');
+                });
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(50);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Importers;
 
 use App\Models\Course;
+use Illuminate\Support\Facades\Validator;
 
 class Courses
 {
@@ -11,11 +12,11 @@ class Courses
         $school = substr($code, 0, 3);
         if ($school == 'MAT') {
             return 'MATH';
-        } else if ($school == 'PHA') {
+        } elseif ($school == 'PHA') {
             return 'PHAS';
-        } else if ($school == 'CHE') {
+        } elseif ($school == 'CHE') {
             return 'CHEM';
-        } else if ($school == 'COMP') {
+        } elseif ($school == 'COMP') {
             return 'COMP';
         } else {
             return $school;
@@ -29,6 +30,7 @@ class Courses
         } else {
             $year = substr($code, 3, 1);
         }
+
         return $year;
     }
 
@@ -36,8 +38,9 @@ class Courses
     {
         $errors = [];
 
-        if (strtolower($rows[0][0]) != 'course title' || count($rows[0]) != 4) {
+        if (count($rows[0]) != 4) {
             $errors[] = 'Incorrect file format - please check the file and try again.';
+
             return $errors;
         }
 
@@ -47,36 +50,29 @@ class Courses
                 'course_title' => $row[0],
                 'course_code' => $row[1],
                 'discipline' => $row[2],
-                'active' => $row[3]
+                'active' => $row[3],
             ];
 
             if (strtolower($row['course_title']) == 'course title') {
                 continue;
             }
 
-            if ($row['course_title'] == '') {
-                $errors[] = 'Row ' . $row['row_number'] . ': Course title is required';
-                continue;
-            }
+            $validator = Validator::make($row, [
+                'course_code' => 'required|min:7|max:8',
+                'course_title' => 'required|min:2',
+                'discipline' => 'required|min:2',
+                'active' => 'required|in:Yes,No',
+            ]);
 
-            if ($row['course_code'] == '') {
-                $errors[] = 'Row ' . $row['row_number'] . ': Course code is required';
-                continue;
-            }
+            if ($validator->fails()) {
+                $errors[] = 'Row '.$row['row_number'].': '.$validator->errors()->first();
 
-            if ($row['discipline'] == '') {
-                $errors[] = 'Row ' . $row['row_number'] . ': Course discipline is required';
-                continue;
-            }
-
-            if ($row['active'] != 'Yes' && $row['active'] != 'No') {
-                $errors[] = 'Row ' . $row['row_number'] . ': Course active must be Yes or No';
                 continue;
             }
 
             $course = Course::where('code', $row['course_code'])->first();
 
-            if (!$course) {
+            if (! $course) {
                 $course = Course::create(
                     [
                         'title' => $row['course_title'],
@@ -84,11 +80,12 @@ class Courses
                         'school' => $this->codeToSchool($row['course_code']),
                         'year' => $this->codeToYear($row['course_code']),
                         'is_active' => $row['active'] == 'Yes' ? true : false,
-                        'discipline' => $row['discipline']
+                        'discipline' => $row['discipline'],
                     ]
                 );
             }
         }
+
         return $errors;
     }
 }

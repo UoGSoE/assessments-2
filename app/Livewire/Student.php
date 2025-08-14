@@ -32,26 +32,8 @@ class Student extends Component
             ->get();
 
         $this->assessmentsArray = $this->assessments
-            ->map(fn ($assessment) => $this->assessmentAsCalendarEvent($assessment))
+            ->map(fn ($assessment) => $assessment->toCalendarEvent())
             ->toArray();
-    }
-
-    protected function assessmentAsCalendarEvent(Assessment $assessment)
-    {
-        return [
-            'id' => $assessment->id,
-            'title' => $assessment->course->code.' - '.$assessment->type,
-            'start' => $assessment->deadline->toIso8601String(),
-            'end' => $assessment->deadline->addHours(1)->toIso8601String(),
-            'course_code' => $assessment->course->code,
-            'course_title' => $assessment->course->title,
-            'feedback_due' => $assessment->feedback_deadline->toIso8601String(),
-            'discipline' => $assessment->course->discipline,
-            'color' => 'steelblue',
-            'textColor' => 'white',
-            'url' => route('assessment.show', $assessment),
-            'year' => $assessment->course->year,
-        ];
     }
 
     public function render()

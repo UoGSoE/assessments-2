@@ -2,8 +2,9 @@
 
 namespace App\Importers;
 
-use App\Models\User;
 use App\Models\Course;
+use App\Models\User;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 class StudentCourses
@@ -12,8 +13,9 @@ class StudentCourses
     {
         $errors = [];
 
-        if (strtolower($rows[0][0]) != 'forenames' || count($rows[0]) != 4) {
+        if (count($rows[0]) != 4) {
             $errors[] = 'Incorrect file format - please check the file and try again.';
+
             return $errors;
         }
 
@@ -30,43 +32,38 @@ class StudentCourses
                 continue;
             }
 
-            if ($row['forenames'] == '') {
-                $errors[] = 'Row ' . $row['row_number'] . ': Forenames are required';
-                continue;
-            }
+            $validator = Validator::make($row, [
+                'forenames' => 'required|min:2',
+                'surname' => 'required|min:2',
+                'username' => 'required|min:3',
+                'course' => 'required|min:7|max:8',
+            ]);
 
-            if ($row['surname'] == '') {
-                $errors[] = 'Row ' . $row['row_number'] . ': Surname is required';
-                continue;
-            }
+            if ($validator->fails()) {
+                $errors[] = 'Row '.$row['row_number'].': '.$validator->errors()->first();
 
-            if ($row['username'] == '') {
-                $errors[] = 'Row ' . $row['row_number'] . ': GUID is required';
-                continue;
-            }
-
-            if ($row['course'] == '') {
-                $errors[] = 'Row ' . $row['row_number'] . ': Course code is required';
                 continue;
             }
 
             $course = Course::where('code', $row['course'])->first();
-            if (!$course) {
+            if (! $course) {
                 $errors[] = "Course with code '{$row['course']}' not found - please add it to the system first.";
+
                 continue;
             }
-            
+
             $student = User::firstOrCreate([
                 'username' => $row['username'],
             ], [
                 'forenames' => $row['forenames'],
                 'surname' => $row['surname'],
-                'email' => $row['username'] . '@student.gla.ac.uk',
-                'password' => bcrypt(Str::random(64))
+                'email' => $row['username'].'@student.gla.ac.uk',
+                'password' => bcrypt(Str::random(64)),
             ]);
 
             $student->coursesAsStudent()->syncWithoutDetaching([$course->id]);
         }
+
         return $errors;
     }
 }

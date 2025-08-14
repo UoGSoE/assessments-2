@@ -19,27 +19,27 @@ beforeEach(function () {
         ['Geology Course', 'GES1235', 'Ignore', 'Yes'],
         ['Maths Course', 'MATH1235', 'Ignore', 'Yes'],
         ['Chemistry Course', 'CHEM1112', 'Ignore', 'Yes'],
-        ['Engineering Course', 'ENG1213', 'Ignore', 'Yes'], 
+        ['Engineering Course', 'ENG1213', 'Ignore', 'Yes'],
     ];
     $this->incorrectlyFormattedCourseData = [
-        ['Code', 'Course Title', 'Discipline', 'Active (Yes/No)'],
+        ['Course Title', 'Discipline', 'Active (Yes/No)'],
         ['Geology Course', 'GES1235', 'Ignore', 'Yes'],
         ['Maths Course', 'MATH1235', 'Ignore', 'Yes'],
         ['Chemistry Course', 'CHEM1112', 'Ignore', 'Yes'],
-        ['Engineering Course', 'ENG1213', 'Ignore', 'Yes'], 
+        ['Engineering Course', 'ENG1213', 'Ignore', 'Yes'],
     ];
     $this->missingCourseData = [
         ['Course Title', 'Code', 'Discipline', 'Active (Yes/No)'],
         ['Geology Course', 'GES1235', 'Ignore', 'Yes'],
         ['Maths Course', '', 'Ignore', 'Yes'],
         ['Chemistry Course', 'CHEM1112', 'Ignore', 'Yes'],
-        ['', 'ENG1213', 'Ignore', 'Yes'], 
+        ['', 'ENG1213', 'Ignore', 'Yes'],
     ];
 });
 
 it('can render courses import page', function () {
     actingAs($this->admin);
-    
+
     livewire(ImportCoursePage::class)
         ->assertSee('Import Courses')
         ->assertSee('Course Title | Code | Discipline | Active (Yes/No)')
@@ -49,7 +49,7 @@ it('can render courses import page', function () {
 
 it('allows admin to access import page', function () {
     actingAs($this->admin);
-    
+
     $this->get('/import/courses')
         ->assertOk()
         ->assertSee('Import Courses');
@@ -57,7 +57,7 @@ it('allows admin to access import page', function () {
 
 it('prevents non-admin from accessing import page', function () {
     actingAs($this->user);
-    
+
     $this->get('/import/courses')
         ->assertForbidden();
 });
@@ -65,16 +65,16 @@ it('prevents non-admin from accessing import page', function () {
 it('requires admin privileges to import courses', function () {
     actingAs($this->user);
     $file = UploadedFile::fake()->create('courses.xlsx', 100);
-        
+
     post('/import/courses', ['importFile' => $file])
-            ->assertForbidden();
+        ->assertForbidden();
 });
 
 it('imports courses', function () {
 
-    expect(Course::count())->toBe(0); 
+    expect(Course::count())->toBe(0);
 
-    (new Courses())->process($this->testCourseData);
+    (new Courses)->process($this->testCourseData);
 
     expect(Course::count())->toBe(4);
 
@@ -89,16 +89,16 @@ it('imports courses', function () {
 });
 
 it('does not import courses file with wrong format', function () {
-    $errors = (new Courses())->process($this->incorrectlyFormattedCourseData);
+    $errors = (new Courses)->process($this->incorrectlyFormattedCourseData);
     expect(Course::count())->toBe(0);
     $this->assertCount(1, $errors);
-    $this->assertEquals("Incorrect file format - please check the file and try again.", $errors[0]);
+    $this->assertEquals('Incorrect file format - please check the file and try again.', $errors[0]);
 });
 
 it('handles courses with missing data', function () {
-    $errors = (new Courses())->process($this->missingCourseData);
+    $errors = (new Courses)->process($this->missingCourseData);
     expect(Course::count())->toBe(2);
     $this->assertCount(2, $errors);
-    $this->assertEquals("Row 3: Course code is required", $errors[0]);
-    $this->assertEquals("Row 5: Course title is required", $errors[1]);
+    $this->assertEquals('Row 3: The course code field is required.', $errors[0]);
+    $this->assertEquals('Row 5: The course title field is required.', $errors[1]);
 });

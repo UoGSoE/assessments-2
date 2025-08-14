@@ -6,6 +6,7 @@ use App\Models\Assessment;
 use App\Models\Course;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Validator;
 
 class SubmissionWindows
 {
@@ -15,14 +16,15 @@ class SubmissionWindows
     public function process($rows): array
     {
         $errors = [];
-        
-        if (strtolower($rows[0][0]) != 'course code' || count($rows[0]) != 7) {
+
+        if (count($rows[0]) != 7) {
             $errors[] = 'Incorrect file format - please check the file and try again.';
+
             return $errors;
         }
 
         foreach ($rows as $index => $row) {
-            
+
             $row = [
                 'row_number' => $index + 1,
                 'course_code' => $row[0],
@@ -37,82 +39,67 @@ class SubmissionWindows
             if (strtolower($row['course_code']) == 'course code') {
                 continue;
             }
-            
-            if ($row['course_code'] == '') {
-                $errors[] = 'Row ' . $row['row_number'] . ': Course code is required';
-                continue;
-            }
 
-            if ($row['assessment_type'] == '') {
-                $errors[] = 'Row ' . $row['row_number'] . ': Assessment type is required';
-                continue;
-            }
+            $validator = Validator::make($row, [
+                'course_code' => 'required|min:7|max:8',
+                'assessment_type' => 'required|min:2',
+                'feedback_type' => 'required|min:2',
+                'email' => 'required|email',
+                'submission_window_start' => 'required',
+                'submission_window_end' => 'required',
+            ]);
 
-            if ($row['feedback_type'] == '') {
-                $errors[] = 'Row ' . $row['row_number'] . ': Feedback type is required';
-                continue;
-            }
+            if ($validator->fails()) {
+                $errors[] = 'Row '.$row['row_number'].': '.$validator->errors()->first();
 
-            if ($row['email'] == '') {
-                $errors[] = 'Row ' . $row['row_number'] . ': Email is required';
-                continue;
-            }
-
-            if ($row['submission_window_start'] == '') {
-                $errors[] = 'Row ' . $row['row_number'] . ': Submission window start is required';
-                continue;
-            }
-
-            if ($row['submission_window_end'] == '') {
-                $errors[] = 'Row ' . $row['row_number'] . ': Submission window end is required';
                 continue;
             }
 
             $course = Course::where('code', $row['course_code'])->first();
-            if (!$course) {
+            if (! $course) {
                 $errors[] = "Course with code '{$row['course_code']}' not found - please add it to the system first.";
+
                 continue;
             }
 
             $staff = User::where('email', $row['email'])->first();
-            if (!$staff) {
+            if (! $staff) {
                 $errors[] = "Staff member with email '{$row['email']}' not found - please add them to the system first.";
+
                 continue;
             }
 
             $start = $row['submission_window_start'];
-            
+
             $end = $row['submission_window_end'];
 
             if ($start != '') {
                 try {
-                    
-                    if (!$start instanceof \DateTime) {
-                        
+
+                    if (! $start instanceof \DateTimeInterface) {
+
                         $start = Carbon::createFromFormat('d/m/Y H:i', $start);
-                        
 
                         if (strpos($row['submission_window_start'], ':') === false) {
 
                             $start->setTime(16, 0, 0);
                         }
-                        
+
                     } else {
-                        $start = $start;
+                        $start = Carbon::instance($start);
                     }
-                    
+
                 } catch (\Exception $e) {
-                    
+
                     $errors[] = "Invalid date format for 'Submission Deadline' for deadline '{$row['submission_window_start']}'.";
-                    
+
                     continue;
                 }
             }
             if ($end != '') {
                 try {
-                    if (!$end instanceof \DateTime) {
+                    if (! $end instanceof \DateTime) {
                         $end = Carbon::createFromFormat('d/m/Y H:i', $end);
-
 
                         if (strpos($row['submission_window_end'], ':') === false) {
 
@@ -135,7 +122,7 @@ class SubmissionWindows
                 [
                     'course_id' => $course->id,
                     'type' => $row['assessment_type'],
-                    'staff_id' => $staff->id
+                    'staff_id' => $staff->id,
                 ],
                 [
                     'feedback_type' => $row['feedback_type'],
@@ -147,6 +134,7 @@ class SubmissionWindows
                 ]
             );
         }
+
         return $errors;
     }
 }

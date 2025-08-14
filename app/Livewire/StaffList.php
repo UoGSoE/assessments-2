@@ -2,7 +2,6 @@
 
 namespace App\Livewire;
 
-use App\Models\Assessment;
 use App\Models\User;
 use Livewire\Component;
 use OpenSpout\Common\Entity\Cell;
@@ -30,28 +29,6 @@ class StaffList extends Component
         $this->staff = User::where('surname', 'like', '%'.$searchTerm.'%')
             ->orWhere('forenames', 'like', '%'.$searchTerm.'%')
             ->get();
-    }
-
-    public function isLate(Assessment $assessment)
-    {
-        return $assessment->feedback_deadline < now() && $assessment->feedback_completed_date === null;
-    }
-
-    public function wasLate(Assessment $assessment)
-    {
-        return $assessment->feedback_deadline < $assessment->feedback_completed_date;
-    }
-
-    public function getMissedDeadlines(User $staffMember)
-    {
-        $missedDeadlines = 0;
-        foreach ($staffMember->assessments as $assessment) {
-            if ($this->isLate($assessment) || $this->wasLate($assessment)) {
-                $missedDeadlines++;
-            }
-        }
-
-        return $missedDeadlines;
     }
 
     public function exportStaffList()

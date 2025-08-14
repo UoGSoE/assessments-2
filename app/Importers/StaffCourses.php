@@ -2,16 +2,18 @@
 
 namespace App\Importers;
 
-use App\Models\User;
 use App\Models\Course;
+use App\Models\User;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 class StaffCourses
 {
     public function process($rows)
     {
-        if (strtolower($rows[0][0]) != 'forenames' || count($rows[0]) != 5) {
+        if (count($rows[0]) != 5) {
             $errors[] = 'Incorrect file format - please check the file and try again.';
+
             return $errors;
         }
 
@@ -30,34 +32,24 @@ class StaffCourses
                 continue;
             }
 
-            if ($row['forenames'] == '') {
-                $errors[] = 'Row ' . $row['row_number'] . ': Forenames are required';
-                continue;
-            }
+            $validator = Validator::make($row, [
+                'forenames' => 'required|min:2',
+                'surname' => 'required|min:2',
+                'username' => 'required|min:3',
+                'email' => 'required|email',
+                'course_code' => 'required|min:7|max:8',
+            ]);
 
-            if ($row['surname'] == '') {
-                $errors[] = 'Row ' . $row['row_number'] . ': Surname is required';
-                continue;
-            }
+            if ($validator->fails()) {
+                $errors[] = 'Row '.$row['row_number'].': '.$validator->errors()->first();
 
-            if ($row['username'] == '') {
-                $errors[] = 'Row ' . $row['row_number'] . ': GUID is required';
-                continue;
-            }
-
-            if ($row['email'] == '') {
-                $errors[] = 'Row ' . $row['row_number'] . ': Email is required';
-                continue;
-            }
-
-            if ($row['course_code'] == '') {
-                $errors[] = 'Row ' . $row['row_number'] . ': Course code is required';
                 continue;
             }
 
             $course = Course::where('code', $row['course_code'])->first();
-            if (!$course) {
+            if (! $course) {
                 $errors[] = "Course with code '{$row['course_code']}' not found - please add it to the system first.";
+
                 continue;
             }
             $staff = User::firstOrCreate([
@@ -68,11 +60,12 @@ class StaffCourses
                 'email' => $row['email'],
                 'password' => bcrypt(Str::random(64)),
                 'is_staff' => true,
-                'is_student' => false
+                'is_student' => false,
             ]);
 
             $staff->coursesAsStaff()->syncWithoutDetaching([$course->id]);
         }
+
         return $errors;
     }
 }

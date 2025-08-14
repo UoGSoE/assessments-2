@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
@@ -49,7 +48,7 @@ class UserFactory extends Factory
             'username' => fake()->unique()->regexify('[a-zA-Z]+[0-9]+[a-zA-Z]+'),
             'is_staff' => false,
             'is_admin' => true,
-            'school' => fake()->randomElement(['ENG', 'PHAS', 'MATH', 'CHEM', 'GES', 'COMP'])
+            'school' => fake()->randomElement(['ENG', 'PHAS', 'MATH', 'CHEM', 'GES', 'COMP']),
         ]);
     }
 

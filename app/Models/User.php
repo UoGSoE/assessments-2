@@ -76,4 +76,16 @@ class User extends Authenticatable
     {
         return $query->where('is_staff', true);
     }
+
+    public function getMissedDeadlines()
+    {
+        $missedDeadlines = 0;
+        foreach ($this->assessments as $assessment) {
+            if ($assessment->isLate() || $assessment->wasLate()) {
+                $missedDeadlines++;
+            }
+        }
+
+        return $missedDeadlines;
+    }
 }

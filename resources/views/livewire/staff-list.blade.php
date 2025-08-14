@@ -5,7 +5,7 @@
     </div>
     <div class="flex flex-row gap-4 items-center w-full">
         <flux:text>Search</flux:text>
-        <flux:input wire:model.live.debounce="searchText" size="sm" class="flex-1 w-full"/>
+        <flux:input wire:model.live.debounce="searchText" size="sm" class="flex-1 w-full" />
     </div>
     <flux:table>
         <flux:table.columns>
@@ -17,10 +17,12 @@
         <flux:table.rows>
             @foreach ($staff as $staffMember)
                 <flux:table.row>
-                    <flux:table.cell><a class="text-blue-500" href="{{ route('staff.show', $staffMember->id) }}">{{ $staffMember->getNameAttribute() }}</a></flux:table.cell>
+                    <flux:table.cell><a class="text-blue-500"
+                            href="{{ route('staff.show', $staffMember->id) }}">{{ $staffMember->name }}</a>
+                    </flux:table.cell>
                     <flux:table.cell>{{ count($staffMember->assessments) }}</flux:table.cell>
                     <flux:table.cell>{{ count($staffMember->complaints) }}</flux:table.cell>
-                    <flux:table.cell>{{ $this->getMissedDeadlines($staffMember) }}</flux:table.cell>
+                    <flux:table.cell>{{ $staffMember->getMissedDeadlines() }}</flux:table.cell>
                 </flux:table.row>
             @endforeach
         </flux:table.rows>

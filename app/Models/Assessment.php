@@ -2,9 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\User;
-use App\Models\Course;
-use App\Models\Complaint;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -48,6 +45,7 @@ class Assessment extends Model
     public function studentAlreadyComplained(User $student): bool
     {
         $existingComplaint = Complaint::where('student_id', $student->id)->where('assessment_id', $this->id)->first();
+
         return $existingComplaint ? true : false;
     }
 
@@ -65,6 +63,7 @@ class Assessment extends Model
         if ($this->feedback_deadline->addDays(21)->gte(Carbon::now())) {
             return false;
         }
+
         return true;
     }
 
@@ -76,6 +75,7 @@ class Assessment extends Model
         if ($this->complaints->count() == 0) {
             return 0;
         }
+
         return 100.0 / ($this->course->students->count() / $this->complaints->count());
     }
 
@@ -84,6 +84,44 @@ class Assessment extends Model
         if ($this->percentageNegativeFeedbacks() > config('assessments.problematic_threshold_'.$this->course->school)) {
             return true;
         }
+
         return false;
+    }
+
+    public function isLate()
+    {
+        return $this->feedback_deadline < now() && $this->feedback_completed_date === null;
+    }
+
+    public function wasLate()
+    {
+        return $this->feedback_deadline < $this->feedback_completed_date;
+    }
+
+    public function toCalendarEvent($assessmentType = 'assessment')
+    {
+        $assessmentArray = [
+            'id' => $this->id,
+            'title' => $this->course->code.' - '.$this->type,
+            'start' => $this->deadline->toIso8601String(),
+            'end' => $this->deadline->addHours(1)->toIso8601String(),
+            'course_code' => $this->course->code,
+            'course_title' => $this->course->title,
+            'feedback_due' => $this->feedback_deadline->toIso8601String(),
+            'discipline' => $this->course->discipline,
+            'color' => 'steelblue',
+            'textColor' => 'white',
+            'url' => route('assessment.show', $this),
+            'year' => $this->course->year,
+        ];
+        if ($assessmentType == 'feedback') {
+            $assessmentArray['color'] = 'crimson';
+            $assessmentArray['textColor'] = 'white';
+            $assessmentArray['title'] = 'Feedback Due: '.$this->course->code.' - '.$this->type;
+            $assessmentArray['start'] = $this->feedback_deadline->toIso8601String();
+            $assessmentArray['end'] = $this->feedback_deadline->addHours(1)->toIso8601String();
+        }
+
+        return $assessmentArray;
     }
 }

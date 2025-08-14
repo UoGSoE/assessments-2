@@ -36,11 +36,11 @@ class FeedbackReport extends Component
     public function mount()
     {
         $this->user = Auth::user();
-        $this->school ??= $this->user->school ?? 'All schools';
+        $this->school ??= $this->user->school ?? 'all';
 
         $query = Assessment::with(['course', 'staff', 'complaints'])->orderBy('deadline', 'desc');
 
-        if ($this->school !== 'All schools') {
+        if ($this->school !== 'all') {
             $courseIds = Course::where('school', $this->school)->pluck('id');
             $query->whereIn('course_id', $courseIds);
         }
@@ -77,7 +77,7 @@ class FeedbackReport extends Component
         $this->reset('assessments');
         $query = Assessment::query()->with(['course', 'staff', 'complaints'])->orderBy('deadline', 'desc');
 
-        if ($this->school !== 'All schools') {
+        if ($this->school !== 'all') {
             $courses = Course::where('school', $this->school)->get();
             $query->whereIn('course_id', $courses->pluck('id'));
         }
