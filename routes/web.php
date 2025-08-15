@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\ImportController;
 use App\Livewire\Assessment;
-use App\Livewire\Auth\LdapLogin;
 use App\Livewire\Course;
 use App\Livewire\CreateAssessment;
 use App\Livewire\EditAssessment;
@@ -21,7 +20,9 @@ use App\Livewire\Student;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/login', LdapLogin::class)->name('login');
+Route::get('/login', [\App\Http\Controllers\Auth\SSOController::class, 'login'])->name('login');
+Route::post('/login', [\App\Http\Controllers\Auth\SSOController::class, 'doLocalLogin'])->name('login.do');
+Route::get('/auth/callback', [\App\Http\Controllers\Auth\SSOController::class, 'handleProviderCallback'])->name('sso.callback');
 
 Route::post('/logout', function () {
     Auth::logout();

@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.4
 ### PHP version we are targetting
 ARG PHP_VERSION=8.4
 
@@ -9,12 +10,8 @@ COPY docker/app-start docker/app-healthcheck /usr/local/bin/
 RUN chmod u+x /usr/local/bin/app-start /usr/local/bin/app-healthcheck
 CMD ["tini", "--", "/usr/local/bin/app-start"]
 
-
-
 ### Prod php dependencies
 FROM dev as prod-composer
-ARG FLUX_USERNAME
-ARG FLUX_LICENSE_KEY
 ENV APP_ENV=production
 ENV APP_DEBUG=0
 
@@ -29,36 +26,52 @@ COPY database/seeders database/seeders
 COPY database/factories database/factories
 
 
-COPY --chown=nobody composer.* ./
-RUN echo ${FLUX_USERNAME}
-RUN echo ${FLUX_LICENSE_KEY}
+COPY composer.* ./
 
-RUN composer config http-basic.composer.fluxui.dev "${FLUX_USERNAME}" "${FLUX_LICENSE_KEY}"
-
-RUN composer install \
+USER root
+RUN --mount=type=secret,id=FLUX_USERNAME \
+    --mount=type=secret,id=FLUX_LICENSE_KEY \
+    sh -c ' \
+    export FLUX_USERNAME=$(cat /run/secrets/FLUX_USERNAME) && \
+    export FLUX_LICENSE_KEY=$(cat /run/secrets/FLUX_LICENSE_KEY) && \
+    export COMPOSER_ALLOW_SUPERUSER=1 && \
+    mkdir -p ./composer-auth && \
+    export COMPOSER_HOME="$(pwd)/composer-auth" && \
+    composer config --auth http-basic.composer.fluxui.dev "$FLUX_USERNAME" "$FLUX_LICENSE_KEY" && \
+    composer install \
     --no-interaction \
     --no-plugins \
     --no-scripts \
     --no-dev \
-    --prefer-dist
+    --prefer-dist && \
+    chown -R nobody /var/www/html'
+
 
 ### QA php dependencies
 FROM prod-composer as qa-composer
-ARG FLUX_USERNAME
-ARG FLUX_LICENSE_KEY
 ENV APP_ENV=local
 ENV APP_DEBUG=1
 
-RUN composer config http-basic.composer.fluxui.dev "${FLUX_USERNAME}" "${FLUX_LICENSE_KEY}"
-
-RUN composer install \
+USER root
+RUN --mount=type=secret,id=FLUX_USERNAME \
+    --mount=type=secret,id=FLUX_LICENSE_KEY \
+    sh -c ' \
+    export FLUX_USERNAME=$(cat /run/secrets/FLUX_USERNAME) && \
+    export FLUX_LICENSE_KEY=$(cat /run/secrets/FLUX_LICENSE_KEY) && \
+    export COMPOSER_ALLOW_SUPERUSER=1 && \
+    mkdir -p ./composer-auth && \
+    export COMPOSER_HOME="$(pwd)/composer-auth" && \
+    composer config --auth http-basic.composer.fluxui.dev "$FLUX_USERNAME" "$FLUX_LICENSE_KEY" && \
+    composer install \
     --no-interaction \
     --no-plugins \
     --no-scripts \
-    --prefer-dist
+    --prefer-dist && \
+    chown -R nobody /var/www/html'
+
 
 ### Build JS/css assets
-FROM node:20.13.1 as frontend
+FROM node:22.13.1 as frontend
 
 # workaround for mix.version() webpack bug
 RUN ln -s /home/node/public /public
@@ -113,6 +126,7 @@ RUN if grep -q horizon composer.json; then php /var/www/html/artisan horizon:pub
 RUN ln -sf /run/secrets/.env /var/www/html/.env
 
 #- Clean up and production-cache our apps settings/views/routing
+ENV CACHE_STORE=array
 RUN php /var/www/html/artisan storage:link && \
     php /var/www/html/artisan view:cache && \
     php /var/www/html/artisan route:cache && \
@@ -120,7 +134,6 @@ RUN php /var/www/html/artisan storage:link && \
 
 #- Set up the default healthcheck
 HEALTHCHECK --start-period=30s CMD /usr/local/bin/app-healthcheck
-
 
 
 ### Build the ci version of the app (prod+dev packages)
@@ -132,8 +145,6 @@ ENV APP_DEBUG=0
 #- Copy in our QA php dep's
 COPY --from=qa-composer /var/www/html/vendor /var/www/html/vendor
 
-#- Clear the caches
+#- Install sensiolabs security scanner and clear the caches
 ENV CACHE_STORE=array
-#RUN touch /var/www/html/database/database.sqlite
-#RUN php artisan migrate
 RUN php /var/www/html/artisan optimize:clear
